@@ -1,0 +1,30 @@
+{
+  "name": "delic",
+  "version": "1.0.0",
+  "description": "An Online Restaurant",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zobamba/Delic.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zobamba/Delic/issues"
+  },
+  "homepage": "https://github.com/Zobamba/Delic#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "pg": "^8.7.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.17.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.4.1"
+  }
+}
