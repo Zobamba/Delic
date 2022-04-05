@@ -1,6 +1,7 @@
 'use strict';
 
 const { sequelize } = require("../models");
+const bcrypt = require('bcrypt');
 
 
 module.exports = {
@@ -29,9 +30,9 @@ module.exports = {
       },
       admin: {
         type: Sequelize.BOOLEAN,
-        default: false,
+        defaultValue: false,
       },
-      password: {
+      passwordHash: {
         type: Sequelize.STRING,
         allowNull: false,
         freezeTableName: true,
