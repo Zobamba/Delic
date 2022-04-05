@@ -35,15 +35,6 @@ module.exports = {
       passwordHash: {
         type: Sequelize.STRING,
         allowNull: false,
-        freezeTableName: true,
-        instanceMethods: {
-            generateHash(password) {
-                return bcrypt.hash(password, bcrypt.genSaltSync(8));
-            },
-            validPassword(password) {
-                return bcrypt.compare(password, this.password);
-            }
-        }
     },
       created_at: {
         allowNull: false,
