@@ -28,7 +28,7 @@ export const validateSignUpForm = [
         .withMessage('the name must be a string')
         .trim(),
 
-    body('passwordHash')
+    body('password')
         .exists()
         .withMessage('password is required')
         .isLength({ min: 1 })
@@ -36,13 +36,15 @@ export const validateSignUpForm = [
         .isLength({ min: 8 })
         .withMessage('password must contain at least 8 characters'),
 
-    body('password_confirmation')
+    body('passwordConfirmation')
         .exists()
-        .withMessage('password is required')
+        .withMessage('password confirmation is required')
         .isLength({ min: 1 })
-        .withMessage('password is required')
-        .isLength({ min: 8 })
-        .withMessage('password must contain at least 8 characters'),
+        .withMessage('password confirmation is required')
+        .custom((value) => {
+            return value === req.body.password;
+        })
+        .withMessage('password confirmation should match password'),
 ];
 
 export function Errors(req, res, next) {
