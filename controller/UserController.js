@@ -1,10 +1,9 @@
 import passwordHash from 'password-hash';
-import user from '../models/index.js';
-import { Errors } from '../middlewares/validate.js';
-
+import { user } from '../models/index.js';
+import { getErrorMessage } from './Util.js';
 class UserController {
     signUp(req, res) {
-        const user = user.create({
+        user.create({
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             email: req.body.email,
@@ -18,7 +17,7 @@ class UserController {
               message: 'User successfully created',
             });
           }).catch((error) => {
-            res.status(400).send(Errors(error));
+            res.status(400).send(getErrorMessage(error));
           });
         }
 }

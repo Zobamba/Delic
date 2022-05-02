@@ -56,5 +56,5 @@ export function Errors(req, res, next) {
             errors: errors.array()
 
         });
-    } next();
+    }
 }
