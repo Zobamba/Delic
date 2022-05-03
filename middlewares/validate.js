@@ -1,6 +1,6 @@
 import { body, validationResult } from 'express-validator';
 
-export const validateSignUpForm = [
+export const signUpConstraints = [
     body('email')
         .exists()
         .withMessage('email is required')
@@ -41,20 +41,15 @@ export const validateSignUpForm = [
         .withMessage('password confirmation is required')
         .isLength({ min: 1 })
         .withMessage('password confirmation is required')
-        .custom((value) => {
+        .custom((value, { req }) => {
             return value === req.body.password;
         })
         .withMessage('password confirmation should match password'),
 ];
 
-export function Errors(req, res, next) {
+export const validateSignUpForm = (req, res) => {
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
-        return res.status(400).json({
-            success: false,
-            errors: errors.array()
-
-        });
+        return res.status(400).json({ errors: errors.array() });
     }
 }
