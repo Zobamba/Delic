@@ -14,5 +14,3 @@ export function getErrorMessage(error) {
     [message.path]: error.original.message,
   };
 }
-
-
