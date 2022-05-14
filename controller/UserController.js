@@ -1,5 +1,5 @@
 import passwordHash from 'password-hash';
-import { user } from '../models/index.js';
+import { user } from '../models';
 import {  signJsonWebToken, getErrorMessage } from './Util.js';
 
 class UserController {

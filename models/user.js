@@ -13,10 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         isEmail: true,
       },
     },
-    passwordHash: DataTypes.STRING,
-    firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING,
-  }, {});
+  });
   user.init({
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
