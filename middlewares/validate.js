@@ -1,4 +1,3 @@
-import validate from 'uuid-validate';
 import {  buildCheckFunction } from 'express-validator';
 
 const checkBodyAndQuery = buildCheckFunction(['body', 'params', 'query']);
