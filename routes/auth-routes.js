@@ -1,4 +1,4 @@
-import { signUpConstraints, signInConstraints, validateFormData} from "../middlewares/auth-validate.js";
+import { signUpConstraints, signInConstraints, validateFormData } from "../middlewares/auth-validate.js";
 import UserController from "../controller/UserController.js";
 
 

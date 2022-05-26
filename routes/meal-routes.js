@@ -5,5 +5,5 @@ import { validParamId } from '../middlewares/validate';
 
 export default function mealRoutes(app) {
     app.post('/meals', verifyAuthToken, validateToken, mealFormConstraints, validateFormData, MealController.postMeal);
-    app.get('/meals/:id', verifyAuthToken, validateToken, validParamId, MealController.getMealById);
+    app.get('/meals/:id', verifyAuthToken, validateToken, validParamId, validateFormData, MealController.getMealById);
 }
