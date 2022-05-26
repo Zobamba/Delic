@@ -32,7 +32,8 @@
     "password-hash": "^1.2.2",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.17.0"
+    "sequelize": "^6.17.0",
+    "uuid-validate": "0.0.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
