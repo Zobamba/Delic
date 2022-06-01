@@ -1,4 +1,26 @@
 import { meal } from '../models';
+import sequelize from 'sequelize';
+
+const { Op } = sequelize;
+
+const mealViewModelFromArray = (meals) => {
+  const viewModel = [];
+  meals.forEach((item) => {
+    const thisModel = {
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      userId: item.userId,
+      category: item.category,
+      description: item.description,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+      imageUrl: item.imageUrl,
+    };
+    viewModel.push(thisModel);
+  });
+  return viewModel;
+};
 
 const mealViewModel = (item) => {
   const viewModel = {
@@ -18,6 +40,8 @@ const mealViewModel = (item) => {
 class MealsController {
   constructor() {
     this.putMeal = this.putMeal.bind(this);
+    this.getMeals = this.getMeals.bind(this);
+
   }
 
   postMeal(req, res) {
@@ -91,6 +115,45 @@ class MealsController {
       }
     });
   }
+
+  getMeals(req, res) {
+    const { searchKey } = req.query;
+    meal.count({
+      where: searchKey === undefined ? { userId: req.user.id } :
+        {
+          userId: req.user.id,
+          [Op.or]: {
+            name: { [Op.iLike]: `%${searchKey}%` },
+            description: { [Op.iLike]: `%${searchKey}%` },
+            category: { [Op.iLike]: `%${searchKey}%` },
+          },
+        },
+    }).then((count) => {
+      this.findAllMeals(req, res, count);
+    });
+  }
+
+  findAllMeals(req, res, count) {
+    const { offset, limit, searchKey } = req.query;
+    meal.findAll({
+      order: sequelize.literal('name'),
+      offset: offset || 0,
+      limit: limit || 10,
+      where: searchKey === undefined ? { userId: req.user.id } :
+        {
+          userId: req.user.id,
+          [Op.or]: {
+            name: { [Op.iLike]: `%${searchKey}%` },
+            description: { [Op.iLike]: `%${searchKey}%` },
+            category: { [Op.iLike]: `%${searchKey}%` },
+          },
+        },
+    }).then((meals) => {
+      const viewModel = mealViewModelFromArray(meals);
+      res.status(200).send({ meals: viewModel, count });
+    });
+  }
+
 }
 
 export default new MealsController();
