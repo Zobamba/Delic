@@ -10,7 +10,6 @@ class MealsController {
       category: req.body.category,
       imageUrl: req.body.imageUrl,
     });
-
     meal.findOne({ where: { name: newMeal.name, userId: newMeal.userId } }).then((existingMeal) => {
       if (existingMeal) {
         res.status(409).send({
@@ -51,32 +50,33 @@ class MealsController {
         category: req.body.category,
         imageUrl: req.body.imageUrl,
       },
-      { where: { id: req.params.id, userId: req.user.id }, returning: true },
-    ).then((updated) => {
-      const update = updated[1][0];
-      if (update) {
-        meal.findOne({
-          where: { id: update.id },
-        }).then(updatedMeal => res.status(200).send({
+      {
+        where: { id: req.params.id, userId: req.user.id }, returning: true
+      }).then((updated) => {
+      const updateMeal = updated[1][0];
+
+      if (updateMeal) {
+        return res.status(200).send({
           message: 'Meal successfully updated',
-          meal: updatedMeal,
-        }));
-      } else {
-        res.status(404).send({
-          message: 'Meal not found',
+          meal: updateMeal
+        })
+      }
+      
+      res.status(404).send({
+        message: 'Meal not found',
+      });
+    }).catch((error) => {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        return res.status(409).send({
+          message: `A meal with the name '${req.body.name}' already exists`,
         });
       }
-    });
-    meal.findOne({ where: { name: req.body.name, userId: req.user.id } }).then((existingMeal) => {
-      if (existingMeal) {
-        res.status(409).send({
-          message: 'You already have a meal with this name',
-          meal: existingMeal,
-        });
-      }
+
+      res.status(400).send({
+        message: 'An error occurred while trying to update meal record. Please try again'
+      })
     });
   }
-
 }
 
 export default new MealsController();
