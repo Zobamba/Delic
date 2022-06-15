@@ -1,6 +1,6 @@
 import passwordHash from 'password-hash';
 import { user } from '../models';
-import {  signJsonWebToken, getErrorMessage } from './Util.js';
+import { signJsonWebToken, getErrorMessage } from './Util.js';
 
 class UserController {
   signUp(req, res) {
@@ -21,12 +21,14 @@ class UserController {
     }).catch((error) => {
       res.status(401).send(getErrorMessage(error));
     });
-  } 
-  
+  }
+
   signIn(req, res) {
-    user.findOne({ where: { 
-      email: req.body.email
-    }}).then((usr) => {
+    user.findOne({
+      where: {
+        email: req.body.email
+      }
+    }).then((usr) => {
       if (usr === null) {
         return res.status(401).send({ message: 'User not found' })
       }
@@ -40,7 +42,7 @@ class UserController {
           message: 'Sign in successful',
           token: signJsonWebToken(usr),
         });
-      } 
+      }
 
       res.status(401).send({ message: 'User not found' })
     }).catch((error) => {
