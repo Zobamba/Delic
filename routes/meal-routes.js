@@ -7,5 +7,4 @@ export default function mealRoutes(app) {
     app.post('/meals', verifyAuthToken, validateToken, mealFormConstraints, validateFormData, MealController.postMeal);
     app.get('/meals/:id', verifyAuthToken, validateToken, validParamId, MealController.getMealById);
     app.put('/meals/:id', verifyAuthToken, validateToken, validParamId, mealUpdateFormConstraints, validateFormData, MealController.putMeal);
-
 }
