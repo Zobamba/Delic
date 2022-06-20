@@ -119,4 +119,3 @@ class MealsController {
 }
 
 export default new MealsController();
-
