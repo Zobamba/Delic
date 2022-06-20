@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 export function signJsonWebToken(user) {
   const token = jwt.sign({
     data: user,
-}, process.env.JWT_SECRET );
+  }, process.env.JWT_SECRET);
   return token;
 };
 

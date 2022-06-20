@@ -3,47 +3,7 @@ import sequelize from 'sequelize';
 
 const { Op } = sequelize;
 
-const mealViewModelFromArray = (meals) => {
-  const viewModel = [];
-  meals.forEach((item) => {
-    const thisModel = {
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      userId: item.userId,
-      category: item.category,
-      description: item.description,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-      imageUrl: item.imageUrl,
-    };
-    viewModel.push(thisModel);
-  });
-  return viewModel;
-};
-
-const mealViewModel = (item) => {
-  const viewModel = {
-    id: item.id,
-    name: item.name,
-    price: item.price,
-    userId: item.userId,
-    category: item.category,
-    description: item.description,
-    createdAt: item.createdAt,
-    updatedAt: item.updatedAt,
-    imageUrl: item.imageUrl,
-  };
-  return viewModel;
-};
-
 class MealsController {
-  constructor() {
-    this.putMeal = this.putMeal.bind(this);
-    this.getMeals = this.getMeals.bind(this);
-
-  }
-
   postMeal(req, res) {
     const newMeal = meal.build({
       name: req.body.name,
@@ -53,7 +13,6 @@ class MealsController {
       category: req.body.category,
       imageUrl: req.body.imageUrl,
     });
-
     meal.findOne({ where: { name: newMeal.name, userId: newMeal.userId } }).then((existingMeal) => {
       if (existingMeal) {
         res.status(409).send({
@@ -63,9 +22,9 @@ class MealsController {
         newMeal.save().then((response) => {
           meal.findOne({
             where: { id: response.id },
-          }).then(returnedMeal => res.status(201).send({
+          }).then(newMeal => res.status(201).send({
             message: 'Meal successfully created',
-            meal: mealViewModel(returnedMeal),
+            meal: newMeal
           }));
         });
       }
@@ -84,15 +43,6 @@ class MealsController {
     });
   }
 
-  fetchUpdatedMeal(res, update) {
-    meal.findOne({
-      where: { id: update.id },
-    }).then(returnedMeal => res.status(200).send({
-      message: 'Meal successfully updated',
-      meal: mealViewModel(returnedMeal),
-    }));
-  }
-
   putMeal(req, res) {
     meal.update(
       {
@@ -103,17 +53,32 @@ class MealsController {
         category: req.body.category,
         imageUrl: req.body.imageUrl,
       },
-      { where: { id: req.params.id, userId: req.user.id }, returning: true },
-    ).then((updated) => {
-      const update = updated[1][0];
-      if (update) {
-        this.fetchUpdatedMeal(res, update);
-      } else {
+      {
+        where: { id: req.params.id, userId: req.user.id }, returning: true
+      }).then((updated) => {
+        const updateMeal = updated[1][0];
+
+        if (updateMeal) {
+          return res.status(200).send({
+            message: 'Meal successfully updated',
+            meal: updateMeal
+          })
+        }
+
         res.status(404).send({
           message: 'Meal not found',
         });
-      }
-    });
+      }).catch((error) => {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          return res.status(409).send({
+            message: `A meal with the name '${req.body.name}' already exists`,
+          });
+        }
+
+        res.status(400).send({
+          message: 'An error occurred while trying to update meal record. Please try again'
+        })
+      });
   }
 
   getMeals(req, res) {
@@ -129,28 +94,25 @@ class MealsController {
           },
         },
     }).then((count) => {
-      this.findAllMeals(req, res, count);
-    });
-  }
-
-  findAllMeals(req, res, count) {
-    const { offset, limit, searchKey } = req.query;
-    meal.findAll({
-      order: sequelize.literal('name'),
-      offset: offset || 0,
-      limit: limit || 10,
-      where: searchKey === undefined ? { userId: req.user.id } :
-        {
-          userId: req.user.id,
-          [Op.or]: {
-            name: { [Op.iLike]: `%${searchKey}%` },
-            description: { [Op.iLike]: `%${searchKey}%` },
-            category: { [Op.iLike]: `%${searchKey}%` },
+      const { offset, limit, searchKey } = req.query;
+      meal.findAll({
+        order: sequelize.literal('id'),
+        offset: offset || 0,
+        limit: limit || 10,
+        where: searchKey === undefined ? { userId: req.user.id } :
+          {
+            userId: req.user.id,
+            [Op.or]: {
+              name: { [Op.iLike]: `%${searchKey}%` },
+              description: { [Op.iLike]: `%${searchKey}%` },
+              category: { [Op.iLike]: `%${searchKey}%` },
+            },
           },
-        },
-    }).then((meals) => {
-      const viewModel = mealViewModelFromArray(meals);
-      res.status(200).send({ meals: viewModel, count });
+      }).then((meals) => {
+        res.status(200).send({ 
+          meals, 
+          count });
+      });
     });
   }
 
@@ -173,4 +135,3 @@ class MealsController {
 }
 
 export default new MealsController();
-
