@@ -116,6 +116,22 @@ class MealsController {
     });
   }
 
+  deleteMeal(req, res) {
+    meal.destroy({
+      where: { id: req.params.id, userId: req.user.id },
+    }).then((deleted) => {
+      if (deleted) {
+        res.status(200).send({
+          message: 'Meal successfully deleted',
+        });
+      } else {
+        res.status(404).send({
+          message: 'Meal not found',
+        });
+      }
+    });
+  }
+
 }
 
 export default new MealsController();
