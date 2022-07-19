@@ -1,24 +1,26 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  class menu extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-  }
-  menu.init({
-    date: DataTypes.DATE,
-    userId: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'menu',
+  const Menu = sequelize.define('menu', {
+    userId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    date: {
+      type: DataTypes.DATE,
+      defaultValue: new Date().toDateString(),
+    },
   });
-  return menu;
+
+  Menu.associate = (models) => {
+    Menu.belongsTo(models.user, {
+      foreignKey: 'userId',
+    });
+    Menu.belongsToMany(models.meal, {
+      through: 'menuMeals',
+      foreignKey: 'menuId',
+      otherKey: 'mealId',
+    });
+  };
+
+  return Menu;
 };
