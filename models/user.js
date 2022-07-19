@@ -4,8 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       allowNull: false,
       primaryKey: true,
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
+      defaultValue: DataTypes.INTEGER,
     },
     email: {
       type: DataTypes.STRING,
@@ -25,5 +25,9 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'user',
   });
+  user.associate = (models) => {
+    user.hasMany(models.meal);
+    user.hasMany(models.menu);
+  };
   return user;
 };
