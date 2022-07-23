@@ -5,6 +5,9 @@ import moment from 'moment';
 const { Op } = sequelize;
 
 class MenusController {
+  constructor() {
+    this.putMenu = this.putMenu.bind(this);
+  }
   verifyMealsInMenu(req, res, next) {
     let { meals } = req.body;
     meal.findAll({ where: { id: meals, userId: { [Op.ne]: req.user.id } } }).then((data) => {
@@ -71,6 +74,78 @@ class MenusController {
       })
     }).catch((error) => {
       res.status(400).send({ message: error });
+    });
+  }
+
+  putMenu(req, res) {
+    const { date, meals } = req.body;
+    const userId = req.user.id;
+
+    menu.findOne({ where: { id: req.params.id } }).then((existingMenu) => {
+      if (existingMenu) {
+        if (existingMenu.date !== date) {
+          menu.findOne({ where: { userId, date } }).then((alreadyExist) => {
+            if (alreadyExist) {
+              res.status(400).send({
+                message: 'You have already created a menu for the selected date. Please choose a different date.',
+              });
+            } else {
+              this.updateMenu(req, res, date, meals, userId);
+            }
+          });
+        } else {
+          this.updateMenu(req, res, date, meals, userId);
+        }
+      } else {
+        return res.status(404).send({ message: 'Menu not found' });
+      }
+    });
+  }
+
+  updateMenu(req, res, date, meals, userId) {
+    menu.update(
+      {
+        id: req.params.id,
+        date,
+        userId,
+      },
+      { where: { id: req.params.id, userId: req.user.id }, returning: true },
+    ).then((updated) => {
+      const updatedMenu = updated[1][0];
+      if (updatedMenu) {
+        if (meals) {
+          this.updateMealsInMenu(req, res, meals, updatedMenu);
+        } else {
+          this.getMenuById(updatedMenu.id).then((responseData) => {
+            res.status(200).send({
+              message: 'Menu successfully updated',
+              menu: getMenusViewModel([responseData])[0],
+            });
+          });
+        }
+      }
+    });
+  }
+
+  updateMealsInMenu(req, res, meals, update) {
+    menuMeal.destroy({ where: { menuId: req.params.id } }).then(() => {
+      const newMealMenus = [];
+      meals.forEach((ml) => {
+        newMealMenus.push({
+          menuId: req.params.id,
+          mealId: ml.mealId,
+        });
+      });
+
+      menuMeal.bulkCreate(newMealMenus).then(() => {
+        this.getMenuById(update.id).then((responseData) => {
+          res.status(200).send({
+            message: 'Menu successfully updated',
+            menu: getMenusViewModel([responseData])[0],
+            meals,
+          });
+        });
+      });
     });
   }
 
