@@ -13,8 +13,7 @@ class MenusController {
     meal.findAll({ where: { id: meals, userId: { [Op.ne]: req.user.id } } }).then((data) => {
       if (data.length) {
         res.status(401).send({
-          message: `The meal, ${data[0].name}, was not created by you. 
-              You can not create a menu with another user's meal.`,
+          message: `The meal, ${data[0].name}, was not created by you. You can not have a menu with another user's meal.`,
         });
       } else {
         meal.findAll({ where: { id: meals } }).then((data) => {
@@ -77,6 +76,15 @@ class MenusController {
     });
   }
 
+  getMenuById(id) {
+    return menu.findOne({
+      include: [{
+        model: meal,
+      }],
+      where: { id },
+    }).then(responseData => responseData);
+  }
+
   putMenu(req, res) {
     const { date, meals } = req.body;
     const userId = req.user.id;
@@ -87,7 +95,7 @@ class MenusController {
           menu.findOne({ where: { userId, date } }).then((alreadyExist) => {
             if (alreadyExist) {
               res.status(400).send({
-                message: 'You have already created a menu for the selected date. Please choose a different date.',
+                message: 'You have a menu for the selected date. Please choose a different date.',
               });
             } else {
               this.updateMenu(req, res, date, meals, userId);
@@ -117,33 +125,42 @@ class MenusController {
           this.updateMealsInMenu(req, res, meals, updatedMenu);
         } else {
           this.getMenuById(updatedMenu.id).then((responseData) => {
-            res.status(200).send({
-              message: 'Menu successfully updated',
-              menu: getMenusViewModel([responseData])[0],
-            });
+            if (responseData) {
+              meal.findAll({ where: { id: meals } }).then((mealRecords) => {
+
+                res.status(200).send({
+                  message: 'Menu successfully updated',
+                  menu: { ...menu.dataValues, meals: mealRecords }
+                });
+              })
+            }
           });
         }
       }
     });
   }
 
-  updateMealsInMenu(req, res, meals, update) {
+  updateMealsInMenu(req, res, meals, updatedMenu) {
     menuMeal.destroy({ where: { menuId: req.params.id } }).then(() => {
-      const newMealMenus = [];
+      const newMenuMeals = [];
       meals.forEach((ml) => {
-        newMealMenus.push({
+        newMenuMeals.push({
           menuId: req.params.id,
-          mealId: ml.mealId,
+          mealId: ml
         });
       });
 
-      menuMeal.bulkCreate(newMealMenus).then(() => {
-        this.getMenuById(update.id).then((responseData) => {
-          res.status(200).send({
-            message: 'Menu successfully updated',
-            menu: getMenusViewModel([responseData])[0],
-            meals,
-          });
+      menuMeal.bulkCreate(newMenuMeals).then(() => {
+        this.getMenuById(updatedMenu.id).then((responseData) => {
+          if (responseData) {
+            meal.findAll({ where: { id: meals } }).then((mealRecords) => {
+
+              res.status(200).send({
+                message: 'Menu successfully updated',
+                menu: { ...menu.dataValues, meals: mealRecords }
+              });
+            })
+          }
         });
       });
     });
