@@ -72,7 +72,7 @@ class MenusController {
         });
       })
     }).catch((error) => {
-      res.status(400).send({ message: error });
+      res.status(400).send({ message: error.name });
     });
   }
 
@@ -83,6 +83,21 @@ class MenusController {
       }],
       where: { id },
     }).then(responseData => responseData);
+  }
+
+  getMenuByIdParam(req, res) {
+    menu.findOne({
+      include: [{
+        model: meal,
+      }],
+      where: { id: req.params.id, userId: req.user.id },
+    }).then((responseData) => {
+      if (responseData) {
+        res.status(200).send({ menu: responseData });
+      } else {
+        res.status(404).send({ message: 'Menu not found' });
+      }
+    });
   }
 
   putMenu(req, res) {
