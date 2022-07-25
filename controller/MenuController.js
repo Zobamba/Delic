@@ -1,5 +1,5 @@
 import sequelize from 'sequelize';
-import { menu, meal, menuMeal } from '../models';
+import { menu, meal, menuMeal, user } from '../models';
 import moment from 'moment';
 
 const { Op } = sequelize;
@@ -97,6 +97,23 @@ class MenusController {
       } else {
         res.status(404).send({ message: 'Menu not found' });
       }
+    });
+  }
+
+  getMenus(req, res) {
+    const { date } = req.query;
+    menu.findAll({
+      include: [
+        {
+          model: meal, user
+        },
+      ],
+      limit: req.query.limit || 10,
+      offset: req.query.offset || 0,
+      order: [['date', 'DESC']],
+      where: date ? { date } : null,
+    }).then((responseData) => {
+      res.status(200).send((responseData));
     });
   }
 
