@@ -161,7 +161,7 @@ class MenusController {
       meals.forEach((ml) => {
         newMenuMeals.push({
           menuId: req.params.id,
-          mealId: ml.mealId,
+          mealId: ml
         });
       });
 
