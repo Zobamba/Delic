@@ -102,18 +102,21 @@ class MenusController {
 
   getMenus(req, res) {
     const { date } = req.query;
-    menu.findAll({
-      include: [
-        {
-          model: meal, user
-        },
-      ],
-      limit: req.query.limit || 10,
-      offset: req.query.offset || 0,
-      order: [['date', 'DESC']],
-      where: date ? { date } : null,
-    }).then((responseData) => {
-      res.status(200).send((responseData));
+    menu.count().then((count) => {
+      menu.findAll({
+        include: [{
+          model: meal,
+        }],
+        limit: req.query.limit || 10,
+        offset: req.query.offset || 0,
+        order: [['date', 'DESC']],
+        where: date ? { date } : null,
+      }).then((menus) => {
+        res.status(200).send({
+          count,
+          menus: menus
+        });
+      });
     });
   }
 
