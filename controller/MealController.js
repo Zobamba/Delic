@@ -22,9 +22,9 @@ class MealsController {
         newMeal.save().then((response) => {
           meal.findOne({
             where: { id: response.id },
-          }).then(newMeal => res.status(201).send({
+          }).then(createdMeal => res.status(201).send({
             message: 'Meal successfully created',
-            meal: newMeal
+            meal: createdMeal
           }));
         });
       }
@@ -89,7 +89,7 @@ class MealsController {
           userId: req.user.id,
           [Op.or]: {
             name: { [Op.iLike]: `%${searchKey}%` },
-            description: { [Op.iLike]: `%${searchKey}%` },
+            description: { [Op.iLike]: `%${searchKey}%` }, 
             category: { [Op.iLike]: `%${searchKey}%` },
           },
         },
