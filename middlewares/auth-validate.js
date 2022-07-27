@@ -67,7 +67,7 @@ export const signInConstraints = [
 
 export function verifyAuthToken(req, res, next) {
   const bearerHeader = req.headers.authorization;
-  if (typeof bearerHeader !== 'undefined') {
+  if (typeof bearerHeader !== undefined) {
     const token = bearerHeader.split(' ')[1];
     req.token = token;
     next();
