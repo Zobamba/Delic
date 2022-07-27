@@ -120,6 +120,25 @@ class MenusController {
     });
   }
 
+  getMenusByUserId(req, res) {
+    menu.count({ where: { userId: req.user.id } }).then((count) => {
+      menu.findAll({
+        include: [{
+          model: meal,
+        }],
+        where: { userId: req.user.id },
+        limit: req.query.limit || 10,
+        offset: req.query.offset || 0,
+        order: [['date', 'DESC']],
+      }).then((menus) => {
+        res.status(200).send({
+          count,
+          menus: menus
+        });
+      });
+    });
+  }
+
   putMenu(req, res) {
     const { date, meals } = req.body;
     const userId = req.user.id;
