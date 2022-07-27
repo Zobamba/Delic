@@ -220,6 +220,22 @@ class MenusController {
     });
   }
 
+  deleteMenu(req, res) {
+    menu.destroy({
+      where: { id: req.params.id, userId: req.user.id },
+    }).then((deleted) => {
+      if (deleted) {
+        res.status(200).send({
+          message: 'Menu successfully deleted',
+          menu: deleted,
+        });
+      } else {
+        res.status(404).send({
+          message: 'Menu not found',
+        });
+      }
+    });
+  }
 }
 
 export default new MenusController();

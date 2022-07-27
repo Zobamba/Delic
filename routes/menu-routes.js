@@ -8,5 +8,6 @@ export default function menuRoutes(app) {
     app.put('/menus/:id', verifyAuthToken, validateToken, validParamId, menuUpdateFormConstraints, validateFormData, MenuController.verifyMealsInMenu, MenuController.putMenu);
     app.get('/menus/:id', verifyAuthToken, validateToken, validParamId, validateFormData, MenuController.getMenuByIdParam);
     app.get('/menus', verifyAuthToken, validateToken, validateQueryString, validateFormData, MenuController.getMenus);
-    app.get('/menus/user/:id', verifyAuthToken, validateToken, validateQueryString, validateFormData, MenuController.getMenusByUserId);
+    app.get('/menus/user', verifyAuthToken, validateToken, validateQueryString, validateFormData, MenuController.getMenusByUserId);
+    app.delete('/menus/:id', verifyAuthToken, validateToken, validParamId, validateFormData, MenuController.deleteMenu);
 }
