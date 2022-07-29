@@ -227,7 +227,6 @@ class MenusController {
       if (deleted) {
         res.status(200).send({
           message: 'Menu successfully deleted',
-          menu: deleted,
         });
       } else {
         res.status(404).send({
