@@ -82,7 +82,9 @@ class MealsController {
   }
 
   getMeals(req, res) {
-    const { searchKey } = req.query;
+    const { offset, limit, searchKey } = req.query;
+    const queryLimit = limit || 10;
+    const queryOffset = offset || 0
     meal.count({
       where: searchKey === undefined ? { userId: req.user.id } :
         {
@@ -94,11 +96,10 @@ class MealsController {
           },
         },
     }).then((count) => {
-      const { offset, limit, searchKey } = req.query;
       meal.findAll({
         order: sequelize.literal('id'),
-        offset: offset || 0,
-        limit: limit || 10,
+        offset: queryOffset,
+        limit: queryLimit,
         where: searchKey === undefined ? { userId: req.user.id } :
           {
             userId: req.user.id,
@@ -111,7 +112,10 @@ class MealsController {
       }).then((meals) => {
         res.status(200).send({ 
           meals, 
-          count });
+          count,
+          limit: queryLimit,
+          offset: queryOffset
+         });
       });
     });
   }
