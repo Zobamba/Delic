@@ -101,20 +101,24 @@ class MenusController {
   }
 
   getMenus(req, res) {
-    const { date } = req.query;
+    const { date, limit, offset } = req.query;
+    const queryLimit = limit || 10;
+    const queryOffset = offset || 0;
     menu.count().then((count) => {
       menu.findAll({
         include: [{
           model: meal,
         }],
-        limit: req.query.limit || 10,
-        offset: req.query.offset || 0,
+        limit: queryLimit,
+        offset: queryOffset,
         order: [['date', 'DESC']],
         where: date ? { date } : null,
       }).then((menus) => {
         res.status(200).send({
+          menus: menus,
           count,
-          menus: menus
+          limit: queryLimit,
+          offset: queryOffset
         });
       });
     });
@@ -201,6 +205,21 @@ class MenusController {
     });
   }
 
+  deleteMenu(req, res) {
+    menu.destroy({
+      where: { id: req.params.id, userId: req.user.id },
+    }).then((deleted) => {
+      if (deleted) {
+        res.status(200).send({
+          message: 'Menu successfully deleted',
+        });
+      } else {
+        res.status(404).send({
+          message: 'Menu not found',
+        });
+      }
+    });
+  }
 }
 
 export default new MenusController();
