@@ -1,7 +1,9 @@
 import MenuController from "../controller/MenuController.js";
-import { menuFormConstraints } from "../middlewares/menu-validate";
+import { menuFormConstraints, menuUpdateFormConstraints } from "../middlewares/menu-validate";
 import { validateFormData, verifyAuthToken, validateToken } from "../middlewares/auth-validate";
+import { validParamId } from "../middlewares/validate";
 
 export default function menuRoutes(app) {
     app.post('/menus', verifyAuthToken, validateToken, menuFormConstraints, validateFormData, MenuController.verifyMealsInMenu, MenuController.postMenu, MenuController.mapMenuToMeals);
+    app.put('/menus/:id', verifyAuthToken, validateToken, validParamId, menuUpdateFormConstraints, validateFormData, MenuController.verifyMealsInMenu, MenuController.putMenu);
 }
