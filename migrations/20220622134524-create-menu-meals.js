@@ -6,8 +6,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
-        defaultValue: Sequelize.INTEGER
+        type: Sequelize.INTEGER
       },
       mealId: {
         type: Sequelize.INTEGER,
@@ -16,7 +15,7 @@ module.exports = {
           key: 'id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       menuId: {
         type: Sequelize.INTEGER,
@@ -40,4 +39,4 @@ module.exports = {
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('menuMeals');
   }
-};
+};``

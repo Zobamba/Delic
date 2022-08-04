@@ -38,7 +38,7 @@ class MenusController {
     menu.findOne({ where: { userId, date: menuDate } }).then((existingMenu) => {
       if (existingMenu) {
         return res.status(400).send({
-          message: 'You have already created a menu for the selected date. You can still modify the already created menu',
+          message: 'You have already created a menu for the selected date.',
         });
       } else {
         menu.create({ userId, date: menuDate }).then((createdMenu) => {
@@ -54,15 +54,15 @@ class MenusController {
   mapMenuToMeals(req, res) {
     const { meals, menu } = req;
 
-    const newMealMenus = [];
+    const newMenuMeals = [];
     meals.forEach((ml) => {
-      newMealMenus.push({
+      newMenuMeals.push({
         menuId: menu.id,
         mealId: ml
       });
     });
 
-    menuMeal.bulkCreate(newMealMenus).then(() => {
+    menuMeal.bulkCreate(newMenuMeals).then(() => {
       meal.findAll({ where: { id: meals } }).then((mealRecords) => {
         res.status(201).send({
           message: 'Menu(s) successfully created',

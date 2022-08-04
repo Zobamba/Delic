@@ -6,11 +6,9 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
-        defaultValue: Sequelize.INTEGER
+        type: Sequelize.INTEGER
       },
       date: {
-        allowNull: false,
         type: Sequelize.DATE
       },
       userId: {
