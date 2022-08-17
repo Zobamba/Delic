@@ -2,6 +2,8 @@ module.exports = (sequelize, DataTypes) => {
   const OrderMeal = sequelize.define('orderMeal', {
     orderId: DataTypes.INTEGER,
     mealId: DataTypes.INTEGER,
+    units: DataTypes.INTEGER,
+    price: DataTypes.INTEGER,
   });
   OrderMeal.associate = (models) => {
     OrderMeal.belongsTo(models.meal, {
@@ -9,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });
-  }; 
-  
-  return MenuMeal;
+  };
+
+  return OrderMeal;
 };

@@ -8,30 +8,28 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      userId: {
+      mealId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'meals',
           key: 'id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
-      mealId: {
+      orderId: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'menus',
+          model: 'orders',
           key: 'id',
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
-      quantity: {
-        allowNull: false,
+      units: {
         type: Sequelize.INTEGER
       },
       price: {
-        allowNull: false,
         type: Sequelize.INTEGER
       },
       createdAt: {

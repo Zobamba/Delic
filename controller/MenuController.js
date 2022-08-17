@@ -1,5 +1,5 @@
 import sequelize from 'sequelize';
-import { menu, meal, menuMeal, user } from '../models';
+import { menu, meal, menuMeal } from '../models';
 import moment from 'moment';
 
 const { Op } = sequelize;
