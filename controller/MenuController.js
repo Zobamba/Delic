@@ -153,7 +153,6 @@ class MenusController {
   updateMenu(req, res, date, meals, userId) {
     menu.update(
       {
-        id: req.params.id,
         date,
         userId,
       },

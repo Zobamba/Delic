@@ -73,9 +73,6 @@ class OrderController {
 
     order.findOne({ where: { id: req.params.id, userId } }).then((existingOrder) => {
       if (existingOrder) {
-        if (moment(existingOrder.createdAt).add(60, 'minutes').isBefore(new Date())) {
-          res.status(400).send({ message: 'You cannot modify an order 60 minutes after it is placed' });
-        } else {
           order.update(
             {
               address,
@@ -94,7 +91,6 @@ class OrderController {
               next()
             })
           });
-        }
       } else {
         res.status(404).send({ message: 'Order not found' });
       }
@@ -170,6 +166,22 @@ class OrderController {
           offset: queryOffset
         });
       });
+    });
+  }
+
+  deleteOrder(req, res) {
+    order.destroy({
+      where: { id: req.params.id, userId: req.user.id },
+    }).then((deleted) => {
+      if (deleted) {
+        res.status(200).send({
+          message: 'Order successfully deleted',
+        });
+      } else {
+        res.status(404).send({
+          message: 'Order not found',
+        });
+      }
     });
   }
 }
