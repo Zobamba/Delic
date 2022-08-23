@@ -148,6 +148,30 @@ class OrderController {
       }
     });
   }
+
+  getOrders(req, res) {
+    const { limit, offset } = req.query;
+    const queryLimit = limit || 10;
+    const queryOffset = offset || 0;
+
+    order.count().then((count) => {
+      order.findAll({
+        include: [{
+          model: meal,
+        }],
+        limit: queryLimit,
+        offset: queryOffset,
+        order: [['id', 'ASC']],
+      }).then((orders) => {
+        res.status(200).send({
+          orders: orders,
+          count,
+          limit: queryLimit,
+          offset: queryOffset
+        });
+      });
+    });
+  }
 }
 
 export default new OrderController();

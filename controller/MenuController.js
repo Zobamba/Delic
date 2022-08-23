@@ -104,6 +104,7 @@ class MenusController {
     const { date, limit, offset } = req.query;
     const queryLimit = limit || 10;
     const queryOffset = offset || 0;
+    
     menu.count().then((count) => {
       menu.findAll({
         include: [{
