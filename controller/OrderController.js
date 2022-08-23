@@ -133,6 +133,21 @@ class OrderController {
       });
     });
   }
+
+  getOrderByIdParam(req, res) {
+    order.findOne({
+      include: [{
+        model: meal,
+      }],
+      where: { id: req.params.id, userId: req.user.id }
+    }).then((responseData) => {
+      if (responseData) {
+        res.status(200).send({ order: responseData });
+      } else {
+        res.status(404).send({ message: 'Order not found' });
+      }
+    });
+  }
 }
 
 export default new OrderController();
