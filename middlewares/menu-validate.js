@@ -29,8 +29,8 @@ export const menuUpdateFormConstraints = [
    body('meals')
       .optional({ nullable: true })
       .isArray()
-      .withMessage('the meals field must an array')
+      .withMessage('the meal_ids field must be an array')
       .isLength({ min: 1 })
-      .withMessage('at least on meal is needed')
+      .withMessage('at least one meal is needed')
 ];
 

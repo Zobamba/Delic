@@ -1,5 +1,5 @@
 import sequelize from 'sequelize';
-import { menu, meal, menuMeal, user } from '../models';
+import { menu, meal, menuMeal } from '../models';
 import moment from 'moment';
 
 const { Op } = sequelize;
@@ -104,6 +104,7 @@ class MenusController {
     const { date, limit, offset } = req.query;
     const queryLimit = limit || 10;
     const queryOffset = offset || 0;
+    
     menu.count().then((count) => {
       menu.findAll({
         include: [{
@@ -152,7 +153,6 @@ class MenusController {
   updateMenu(req, res, date, meals, userId) {
     menu.update(
       {
-        id: req.params.id,
         date,
         userId,
       },
