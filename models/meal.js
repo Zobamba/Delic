@@ -1,4 +1,3 @@
-
 module.exports = (sequelize, DataTypes) => {
   const Meal = sequelize.define('meal', {
     name: DataTypes.STRING,
@@ -6,9 +5,9 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.TEXT,
     category: DataTypes.STRING,
     imageUrl: DataTypes.STRING,
-  });
+  }, { paranoid: true });
   Meal.associate = (models) => {
-    Meal.belongsTo(models.user,);
+    Meal.belongsTo(models.user);
     Meal.belongsToMany(models.menu, { through: 'menuMeals' });
   };
   return Meal;

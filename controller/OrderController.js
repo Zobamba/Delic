@@ -1,21 +1,22 @@
+/* eslint-disable no-shadow */
+/* eslint-disable class-methods-use-this */
 import { order, meal, orderMeal } from '../models';
-import moment from 'moment';
 
 class OrderController {
   verifyMealsInOrder(req, res, next) {
-    let { meals } = req.body;
+    const { meals } = req.body;
     const mealIds = meals.map((ml) => ml.mealId);
 
     meal.findAll({ where: { id: mealIds } }).then((data) => {
-      const dbMealIds = data.map(x => x.id);
-      const missingMeals = mealIds.filter(item => !dbMealIds.includes(item))
+      const dbMealIds = data.map((x) => x.id);
+      const missingMeals = mealIds.filter((item) => !dbMealIds.includes(item));
 
       if (missingMeals.length) {
         res.status(401).send({
-          message: `We do not have meals with the following ids: [${missingMeals.join(', ')}]`
+          message: `We do not have meals with the following ids: [${missingMeals.join(', ')}]`,
         });
       } else {
-        next()
+        next();
       }
     });
   }
@@ -32,12 +33,14 @@ class OrderController {
     }).then((createdOrder) => {
       meal.findAll({ where: { id: mealIds } }).then((mealRecords) => {
         req.order = createdOrder;
-        req.meals = mealRecords.map((ml) => {
-          return { ...meals.find(item => item.mealId === ml.id), price: ml.price }
-        });
+        req.meals = mealRecords.map((ml) => ({
+          ...meals.find((item) => item.mealId === ml.id),
+          name: ml.name,
+          price: ml.price,
+        }));
 
         next();
-      })
+      });
     });
   }
 
@@ -61,7 +64,7 @@ class OrderController {
         message: 'Order successfully created',
         order,
         meals,
-        totalPrice: totalPrice
+        totalPrice,
       });
     });
   }
@@ -71,26 +74,27 @@ class OrderController {
     const mealIds = meals.map((ml) => ml.mealId);
     const userId = req.user.id;
 
-    order.findOne({ where: { id: req.params.id, userId } }).then((existingOrder) => {
+    order.findOne({ where: { id: req.params.id } }).then((existingOrder) => {
       if (existingOrder) {
-          order.update(
-            {
-              address,
-              phoneNumber,
-              userId,
-            },
-            { where: { id: req.params.id }, returning: true },
-          ).then((updatedOrder) => {
+        order.update(
+          {
+            address,
+            phoneNumber,
+            userId,
+          },
+          { where: { id: req.params.id }, returning: true },
+        ).then((updatedOrder) => {
+          meal.findAll({ where: { id: mealIds } }).then((mealRecords) => {
+            req.order = updatedOrder;
+            req.meals = mealRecords.map((ml) => ({
+              ...meals.find((item) => item.mealId === ml.id),
+              name: ml.name,
+              price: ml.price,
+            }));
 
-            meal.findAll({ where: { id: mealIds } }).then((mealRecords) => {
-              req.order = updatedOrder;
-              req.meals = mealRecords.map((ml) => {
-                return { ...meals.find(item => item.mealId === ml.id), price: ml.price }
-              });
-
-              next()
-            })
+            next();
           });
+        });
       } else {
         res.status(404).send({ message: 'Order not found' });
       }
@@ -123,7 +127,7 @@ class OrderController {
             mealsCount: meals.length,
             order: req.order[1],
             meals,
-            totalPrice: totalPrice
+            totalPrice,
           });
         });
       });
@@ -135,7 +139,7 @@ class OrderController {
       include: [{
         model: meal,
       }],
-      where: { id: req.params.id, userId: req.user.id }
+      where: { id: req.params.id },
     }).then((responseData) => {
       if (responseData) {
         res.status(200).send({ order: responseData });
@@ -160,10 +164,10 @@ class OrderController {
         order: [['id', 'ASC']],
       }).then((orders) => {
         res.status(200).send({
-          orders: orders,
+          orders,
           count,
           limit: queryLimit,
-          offset: queryOffset
+          offset: queryOffset,
         });
       });
     });
@@ -171,7 +175,7 @@ class OrderController {
 
   deleteOrder(req, res) {
     order.destroy({
-      where: { id: req.params.id, userId: req.user.id },
+      where: { id: req.params.id },
     }).then((deleted) => {
       if (deleted) {
         res.status(200).send({

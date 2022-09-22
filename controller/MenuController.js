@@ -1,33 +1,26 @@
-import sequelize from 'sequelize';
-import { menu, meal, menuMeal } from '../models';
+/* eslint-disable no-shadow */
+/* eslint-disable consistent-return */
+/* eslint-disable class-methods-use-this */
 import moment from 'moment';
-
-const { Op } = sequelize;
+import { menu, meal, menuMeal } from '../models';
 
 class MenusController {
   constructor() {
     this.putMenu = this.putMenu.bind(this);
   }
+
   verifyMealsInMenu(req, res, next) {
-    let { meals } = req.body;
-    meal.findAll({ where: { id: meals, userId: { [Op.ne]: req.user.id } } }).then((data) => {
-      if (data.length) {
+    const { meals } = req.body;
+    meal.findAll({ where: { id: meals } }).then((data) => {
+      const mealIds = data.map((x) => x.id);
+      const missingMeals = meals.filter((item) => !mealIds.includes(item));
+
+      if (missingMeals.length) {
         res.status(401).send({
-          message: `The meal, ${data[0].name}, was not created by you. You can not have a menu with another user's meal.`,
+          message: `We do not have meals with the following ids: [${missingMeals.join(', ')}]`,
         });
       } else {
-        meal.findAll({ where: { id: meals } }).then((data) => {
-          const mealIds = data.map(x => x.id);
-          const missingMeals = meals.filter(item => !mealIds.includes(item))
-
-          if (missingMeals.length) {
-            res.status(401).send({
-              message: `We do not have meals with the following ids: [${missingMeals.join(', ')}]`
-            });
-          } else {
-            next();
-          }
-        });
+        next();
       }
     });
   }
@@ -37,19 +30,18 @@ class MenusController {
     const userId = req.user.id;
     const menuDate = moment([date], 'YYYY/MM/DD');
 
-    menu.findOne({ where: { userId, date: menuDate } }).then((existingMenu) => {
+    menu.findOne({ where: { date: menuDate } }).then((existingMenu) => {
       if (existingMenu) {
         return res.status(400).send({
-          message: 'You have already created a menu for the selected date.',
-        });
-      } else {
-        menu.create({ userId, date: menuDate }).then((createdMenu) => {
-          req.menu = createdMenu;
-          req.meals = req.body.meals;
-
-          return next();
+          message: 'A menu for the selected date already exist.',
         });
       }
+      menu.create({ userId, date: menuDate }).then((createdMenu) => {
+        req.menu = createdMenu;
+        req.meals = req.body.meals;
+
+        return next();
+      });
     });
   }
 
@@ -60,17 +52,17 @@ class MenusController {
     meals.forEach((ml) => {
       newMenuMeals.push({
         menuId: menu.id,
-        mealId: ml
+        mealId: ml,
       });
     });
 
     menuMeal.bulkCreate(newMenuMeals).then(() => {
       meal.findAll({ where: { id: meals } }).then((mealRecords) => {
         res.status(201).send({
-          message: 'Menu(s) successfully created',
-          menu: { ...menu.dataValues, meals: mealRecords }
+          message: 'Menu successfully created',
+          menu: { ...menu.dataValues, meals: mealRecords },
         });
-      })
+      });
     }).catch((error) => {
       res.status(400).send({ message: error.name });
     });
@@ -82,7 +74,7 @@ class MenusController {
         model: meal,
       }],
       where: { id },
-    }).then(responseData => responseData);
+    }).then((responseData) => responseData);
   }
 
   getMenuByIdParam(req, res) {
@@ -90,7 +82,7 @@ class MenusController {
       include: [{
         model: meal,
       }],
-      where: { id: req.params.id, userId: req.user.id },
+      where: { id: req.params.id },
     }).then((responseData) => {
       if (responseData) {
         res.status(200).send({ menu: responseData });
@@ -104,7 +96,7 @@ class MenusController {
     const { date, limit, offset } = req.query;
     const queryLimit = limit || 10;
     const queryOffset = offset || 0;
-    
+
     menu.count().then((count) => {
       menu.findAll({
         include: [{
@@ -116,10 +108,10 @@ class MenusController {
         where: date ? { date } : null,
       }).then((menus) => {
         res.status(200).send({
-          menus: menus,
+          menus,
           count,
           limit: queryLimit,
-          offset: queryOffset
+          offset: queryOffset,
         });
       });
     });
@@ -132,7 +124,7 @@ class MenusController {
     menu.findOne({ where: { id: req.params.id } }).then((existingMenu) => {
       if (existingMenu) {
         if (existingMenu.date !== date) {
-          menu.findOne({ where: { userId, date } }).then((alreadyExist) => {
+          menu.findOne({ where: { date } }).then((alreadyExist) => {
             if (alreadyExist) {
               res.status(400).send({
                 message: 'You have a menu for the selected date. Please choose a different date.',
@@ -156,9 +148,10 @@ class MenusController {
         date,
         userId,
       },
-      { where: { id: req.params.id, userId: req.user.id }, returning: true },
+      { where: { id: req.params.id }, returning: true },
     ).then((updated) => {
       const updatedMenu = updated[1][0];
+
       if (updatedMenu) {
         if (meals) {
           this.updateMealsInMenu(req, res, meals, updatedMenu);
@@ -166,12 +159,11 @@ class MenusController {
           this.getMenuById(updatedMenu.id).then((responseData) => {
             if (responseData) {
               meal.findAll({ where: { id: meals } }).then((mealRecords) => {
-
                 res.status(200).send({
                   message: 'Menu successfully updated',
-                  menu: { ...menu.dataValues, meals: mealRecords }
+                  menu: { ...menu.dataValues, meals: mealRecords },
                 });
-              })
+              });
             }
           });
         }
@@ -185,7 +177,7 @@ class MenusController {
       meals.forEach((ml) => {
         newMenuMeals.push({
           menuId: req.params.id,
-          mealId: ml
+          mealId: ml,
         });
       });
 
@@ -193,12 +185,11 @@ class MenusController {
         this.getMenuById(updatedMenu.id).then((responseData) => {
           if (responseData) {
             meal.findAll({ where: { id: meals } }).then((mealRecords) => {
-
               res.status(200).send({
                 message: 'Menu successfully updated',
-                menu: { ...menu.dataValues, meals: mealRecords }
+                menu: { ...menu.dataValues, meals: mealRecords },
               });
-            })
+            });
           }
         });
       });
@@ -207,7 +198,7 @@ class MenusController {
 
   deleteMenu(req, res) {
     menu.destroy({
-      where: { id: req.params.id, userId: req.user.id },
+      where: { id: req.params.id },
     }).then((deleted) => {
       if (deleted) {
         res.status(200).send({

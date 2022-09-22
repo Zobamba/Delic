@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import jwt from 'jsonwebtoken';
 
 export function signJsonWebToken(user) {
@@ -5,7 +6,7 @@ export function signJsonWebToken(user) {
     data: user,
   }, process.env.JWT_SECRET);
   return token;
-};
+}
 
 export function getErrorMessage(error) {
   console.log(error);

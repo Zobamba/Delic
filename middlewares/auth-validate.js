@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { body, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 
@@ -42,9 +43,7 @@ export const signUpConstraints = [
     .withMessage('password confirmation is required')
     .isLength({ min: 1 })
     .withMessage('password confirmation is required')
-    .custom((value, { req }) => {
-      return value === req.body.password;
-    })
+    .custom((value, { req }) => value === req.body.password)
     .withMessage('password confirmation should match password'),
 ];
 
@@ -62,12 +61,24 @@ export const signInConstraints = [
     .exists()
     .withMessage('password is required')
     .isLength({ min: 1 })
-    .withMessage('password is required')
+    .withMessage('password is required'),
+];
+
+export const updateUserConstraints = [
+  body('admin')
+    .optional({ nullable: true })
+    .isBoolean()
+    .withMessage('Admin field must be a boolean'),
+
+  body('disable')
+    .optional({ nullable: true })
+    .isBoolean()
+    .withMessage('Disable field must be a boolean'),
 ];
 
 export function verifyAuthToken(req, res, next) {
   const bearerHeader = req.headers.authorization;
-  if (typeof bearerHeader !== undefined) {
+  if (typeof bearerHeader !== 'undefined') {
     const token = bearerHeader.split(' ')[1];
     req.token = token;
     next();
@@ -97,4 +108,23 @@ export const validateFormData = (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
   next();
-}
+};
+
+export const checkIfAdmin = (req, res, next) => {
+  const { user } = req;
+  if (!user.admin) {
+    return res.status(401).send({
+      message: 'Not allowed',
+    });
+  }
+  next();
+};
+export const checkIfDisabled = (req, res, next) => {
+  const { user } = req;
+  if (user.disable) {
+    return res.status(401).send({
+      message: 'Disabled! You are not allowed to consume this resource',
+    });
+  }
+  next();
+};
