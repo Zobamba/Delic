@@ -1,4 +1,3 @@
-
 module.exports = (sequelize, DataTypes) => {
   const user = sequelize.define('users', {
     id: {
@@ -20,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     email: DataTypes.STRING,
     phoneNumber: DataTypes.INTEGER,
     admin: DataTypes.BOOLEAN,
-    passwordHash: DataTypes.STRING
+    passwordHash: DataTypes.STRING,
+    disable: DataTypes.BOOLEAN,
   }, {
     sequelize,
     modelName: 'user',

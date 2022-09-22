@@ -1,4 +1,3 @@
-
 module.exports = (sequelize, DataTypes) => {
   const Menu = sequelize.define('menu', {
     userId: {
@@ -9,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       defaultValue: new Date().toDateString(),
     },
-  });
+  }, { paranoid: true });
 
   Menu.associate = (models) => {
     Menu.belongsTo(models.user, {

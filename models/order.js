@@ -16,13 +16,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
-  }, {});
+  }, { paranoid: true });
   Order.associate = (models) => {
     Order.belongsTo(models.user, {
       foreignKey: 'userId',
     });
     Order.belongsToMany(models.meal, {
-      through: "orderMeals",
+      through: 'orderMeals',
       foreignKey: 'orderId',
       otherKey: 'mealId',
     });

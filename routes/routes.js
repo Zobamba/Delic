@@ -4,8 +4,8 @@ import menuRoutes from './menu-routes';
 import orderRoutes from './order-routes';
 
 export default function routes(app) {
-    authRoutes(app);
-    mealRoutes(app);
-    menuRoutes(app);
-    orderRoutes(app);
+  authRoutes(app);
+  mealRoutes(app);
+  menuRoutes(app);
+  orderRoutes(app);
 }

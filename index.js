@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import routes from './routes/routes';
 
-require("dotenv").config();
+require('dotenv').config();
 
 const app = express();
 
@@ -11,11 +11,11 @@ app.use(bodyParser.json());
 
 app.use(express.json());
 
-const port = 3000;
+const port = 3001;
 
 // Homepage route
 app.get('/', (req, res) => {
-    res.send('Welcome to Delic Restaurants');
+  res.send('Welcome to Delic Restaurants');
 });
 
 routes(app);
