@@ -2,7 +2,9 @@
 /* eslint-disable class-methods-use-this */
 import passwordHash from 'password-hash';
 import { signJsonWebToken, getErrorMessage } from './Util';
-import { user } from '../models';
+import models from '../models';
+
+const { user } = models;
 
 class UserController {
   signUp(req, res) {

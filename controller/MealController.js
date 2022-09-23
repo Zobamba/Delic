@@ -1,7 +1,9 @@
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
 import sequelize from 'sequelize';
-import { meal } from '../models';
+import models from '../models';
+
+const { meal } = models;
 
 const { Op } = sequelize;
 

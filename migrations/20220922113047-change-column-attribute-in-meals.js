@@ -1,6 +1,6 @@
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.removeConstraint('meals', 'meals_name_key')
+  async up(queryInterface) {
+    await queryInterface.removeConstraint('meals', 'meals_name_key');
   },
 
   async down(migration, DataTypes, done) {
@@ -9,8 +9,8 @@ module.exports = {
       'name',
       {
         type: DataTypes.STRING,
-        unique: true
-      }
+        unique: true,
+      },
     ).done(done);
   },
 };

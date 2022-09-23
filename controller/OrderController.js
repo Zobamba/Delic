@@ -1,6 +1,8 @@
 /* eslint-disable no-shadow */
 /* eslint-disable class-methods-use-this */
-import { order, meal, orderMeal } from '../models';
+import models from '../models';
+
+const { order, meal, orderMeal } = models;
 
 class OrderController {
   verifyMealsInOrder(req, res, next) {
