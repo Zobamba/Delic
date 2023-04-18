@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
 import passwordHash from 'password-hash';
-import { signJsonWebToken, getErrorMessage } from './Utils.js/Util';
+import { signJsonWebToken, getErrorMessage } from './Util.js'
 import models from '../models';
 
 const { user } = models;
