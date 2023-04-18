@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
   });
   OrderMeal.associate = (models) => {
     OrderMeal.belongsTo(models.meal, {
-      foreignKey: 'orderId',
+      foreignKey: 'mealId',
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });

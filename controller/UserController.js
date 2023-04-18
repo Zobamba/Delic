@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
 import passwordHash from 'password-hash';
-import { signJsonWebToken, getErrorMessage } from './Util';
+import { signJsonWebToken, getErrorMessage } from './Utils.js/Util';
 import models from '../models';
 
 const { user } = models;
@@ -12,6 +12,7 @@ class UserController {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
+      phoneNumber: req.body.phoneNumber,
       passwordHash: passwordHash.generate(req.body.password),
     }).then((usr) => {
       res.status(201).send({
@@ -19,6 +20,7 @@ class UserController {
         firstName: usr.firstName,
         lastName: usr.lastName,
         email: usr.email,
+        phoneNumber: usr.phoneNumber,
         message: 'User successfully created',
         token: signJsonWebToken(usr),
       });
@@ -30,7 +32,7 @@ class UserController {
       }
 
       res.status(400).send({
-        message: 'An error occurred while trying to update meal record. Please try again',
+        message: 'An error occurred while trying to sign up. Please try again',
       });
     });
   }

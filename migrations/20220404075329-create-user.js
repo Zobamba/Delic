@@ -21,8 +21,8 @@ module.exports = {
         unique: true,
       },
       phoneNumber: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       admin: {
         type: Sequelize.BOOLEAN,

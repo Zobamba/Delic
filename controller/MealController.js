@@ -33,6 +33,7 @@ class MealsController {
         });
       }
     });
+    // }
   }
 
   getMealById(req, res) {
@@ -48,7 +49,7 @@ class MealsController {
   }
 
   putMeal(req, res) {
-    meal.update(
+    const newMeal = meal.update(
       {
         name: req.body.name,
         price: req.body.price,
@@ -60,28 +61,32 @@ class MealsController {
       {
         where: { id: req.params.id }, returning: true,
       },
-    ).then((updated) => {
-      const updatedMeal = updated[1][0];
-
-      if (updatedMeal) {
-        return res.status(200).send({
-          message: 'Meal successfully updated',
-          meal: updatedMeal,
-        });
-      }
-
-      res.status(404).send({
-        message: 'Meal not found',
-      });
-    }).catch((error) => {
-      if (error.name === 'SequelizeUniqueConstraintError') {
-        return res.status(409).send({
+    );
+    meal.findOne({ where: { name: req.body.name } }).then((existingMeal) => {
+      if (existingMeal) {
+        res.status(409).send({
           message: `A meal with the name '${req.body.name}' already exists`,
         });
       }
+      newMeal.then((updated) => {
+        const updatedMeal = updated[1][0];
 
-      res.status(400).send({
-        message: 'An error occurred while trying to update meal record. Please try again',
+        if (updatedMeal) {
+          return res.status(200).send({
+            message: 'Meal successfully updated',
+            meal: updatedMeal,
+          });
+        }
+
+        res.status(404).send({
+          message: 'Meal not found',
+        });
+      }).catch((error) => {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          return res.status(409).send({
+            message: `A meal with the name '${req.body.name}' already exists`,
+          });
+        }
       });
     });
   }

@@ -3,7 +3,7 @@ module.exports = {
     await queryInterface.removeConstraint('meals', 'meals_name_key');
   },
 
-  async down(migration, DataTypes, done) {
+  async down(migration, DataTypes) {
     migration.changeColumn(
       'meals',
       'name',
@@ -11,6 +11,6 @@ module.exports = {
         type: DataTypes.STRING,
         unique: true,
       },
-    ).done(done);
+    );
   },
 };

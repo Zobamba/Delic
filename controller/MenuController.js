@@ -106,7 +106,7 @@ class MenusController {
         }],
         limit: queryLimit,
         offset: queryOffset,
-        order: [['date', 'DESC']],
+        order: [['date', 'ASC']],
         where: date ? { date } : null,
       }).then((menus) => {
         res.status(200).send({

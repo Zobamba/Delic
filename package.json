@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon -r esm index.js",
     "migrate": "npx sequelize-cli db:migrate",
-    "undo-migration": "npx sequelize-cli db:migrate:undo"
+    "undo-migration": "npx sequelize-cli db:migrate:undo",
+    "undo-specific": "npx sequelize-cli db:migrate:undo --name"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,8 @@
   "homepage": "https://github.com/Zobamba/Delic#readme",
   "dependencies": {
     "body-parser": "^1.20.0",
+    "cloudinary": "^1.35.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "esm": "^3.2.25",
     "express": "^4.17.3",

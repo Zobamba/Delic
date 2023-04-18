@@ -113,7 +113,7 @@ export const validateFormData = (req, res, next) => {
 export const checkIfAdmin = (req, res, next) => {
   const { user } = req;
   if (!user.admin) {
-    return res.status(401).send({
+    return res.status(403).send({
       message: 'Not allowed',
     });
   }
