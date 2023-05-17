@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    date: {
+    expiredAt: {
       type: DataTypes.DATE,
       defaultValue: new Date().toDateString(),
     },

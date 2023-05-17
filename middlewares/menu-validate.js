@@ -1,9 +1,9 @@
 import { body } from 'express-validator';
 
 export const menuFormConstraints = [
-  body('date')
+  body('expiredAt')
     .exists()
-    .withMessage('the date field is required')
+    .withMessage('the expiredAt field is required')
     .custom((value) => new Date(value).toDateString() !== 'Invalid Date')
     .withMessage('the date supplied is not a valid date')
     .isAfter()
@@ -20,10 +20,13 @@ export const menuFormConstraints = [
 ];
 
 export const menuUpdateFormConstraints = [
-  body('date')
-    .optional({ nullable: true })
+  body('expiredAt')
+    .exists()
+    .withMessage('the expiredAt field is required')
     .custom((value) => new Date(value).toDateString() !== 'Invalid Date')
     .withMessage('the date supplied is not a valid date')
+    .isAfter()
+    .withMessage('the date supplied is in the past')
     .trim(),
 
   body('meals')

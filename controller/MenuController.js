@@ -1,7 +1,7 @@
 /* eslint-disable no-shadow */
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
-import moment from 'moment';
+// import moment from 'moment';
 import models from '../models';
 
 const { menu, meal, menuMeal } = models;
@@ -28,22 +28,13 @@ class MenusController {
   }
 
   postMenu(req, res, next) {
-    const { date } = req.body;
     const userId = req.user.id;
-    const menuDate = moment([date], 'YYYY/MM/DD');
 
-    menu.findOne({ where: { date: menuDate } }).then((existingMenu) => {
-      if (existingMenu) {
-        return res.status(400).send({
-          message: 'A menu for the selected date already exist.',
-        });
-      }
-      menu.create({ userId, date: menuDate }).then((createdMenu) => {
-        req.menu = createdMenu;
-        req.meals = req.body.meals;
+    menu.create({ userId, expiredAt: req.body.expiredAt }).then((createdMenu) => {
+      req.menu = createdMenu;
+      req.meals = req.body.meals;
 
-        return next();
-      });
+      return next();
     });
   }
 
@@ -95,7 +86,7 @@ class MenusController {
   }
 
   getMenus(req, res) {
-    const { date, limit, offset } = req.query;
+    const { limit, offset } = req.query;
     const queryLimit = limit || 10;
     const queryOffset = offset || 0;
 
@@ -106,12 +97,44 @@ class MenusController {
         }],
         limit: queryLimit,
         offset: queryOffset,
-        order: [['date', 'ASC']],
-        where: date ? { date } : null,
+        order: [['id', 'ASC']],
+        where: {},
       }).then((menus) => {
         res.status(200).send({
           menus,
           count,
+          limit: queryLimit,
+          offset: queryOffset,
+        });
+      });
+    });
+  }
+
+  getAllMenusMeals(req, res) {
+    const { limit, offset } = req.query;
+    const queryLimit = limit || 10;
+    const queryOffset = offset || 0;
+
+    menu.findAll({
+      include: [{
+        model: meal,
+      }],
+      limit: queryLimit,
+      offset: queryOffset,
+      order: [['id', 'ASC']],
+      where: {},
+    }).then(() => {
+      menuMeal.findAll({
+        include: [{
+          model: meal,
+        }],
+        limit: queryLimit,
+        offset: queryOffset,
+        order: [['id', 'ASC']],
+        where: {},
+      }).then((menus) => {
+        res.status(200).send({
+          menus,
           limit: queryLimit,
           offset: queryOffset,
         });

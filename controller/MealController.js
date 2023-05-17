@@ -62,38 +62,31 @@ class MealsController {
         where: { id: req.params.id }, returning: true,
       },
     );
-    meal.findOne({ where: { name: req.body.name } }).then((existingMeal) => {
-      if (existingMeal) {
-        res.status(409).send({
+    newMeal.then((updated) => {
+      const updatedMeal = updated[1][0];
+
+      if (updatedMeal) {
+        return res.status(200).send({
+          message: 'Meal successfully updated',
+          meal: updatedMeal,
+        });
+      }
+
+      res.status(404).send({
+        message: 'Meal not found',
+      });
+    }).catch((error) => {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        return res.status(409).send({
           message: `A meal with the name '${req.body.name}' already exists`,
         });
       }
-      newMeal.then((updated) => {
-        const updatedMeal = updated[1][0];
-
-        if (updatedMeal) {
-          return res.status(200).send({
-            message: 'Meal successfully updated',
-            meal: updatedMeal,
-          });
-        }
-
-        res.status(404).send({
-          message: 'Meal not found',
-        });
-      }).catch((error) => {
-        if (error.name === 'SequelizeUniqueConstraintError') {
-          return res.status(409).send({
-            message: `A meal with the name '${req.body.name}' already exists`,
-          });
-        }
-      });
     });
   }
 
   getMeals(req, res) {
     const { offset, limit, searchKey } = req.query;
-    const queryLimit = limit || 10;
+    const queryLimit = limit;
     const queryOffset = offset || 0;
     meal.count({
       where: searchKey === undefined ? {}
