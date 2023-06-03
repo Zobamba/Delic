@@ -2,15 +2,14 @@
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
 
+import sequelize from 'sequelize';
 import models from '../models';
+
+const { Op } = sequelize;
 
 const { menu, meal, menuMeal } = models;
 
 class MenusController {
-  constructor() {
-    this.putMenu = this.putMenu.bind(this);
-  }
-
   verifyMealsInMenu(req, res, next) {
     const { meals } = req.body;
     meal.findAll({ where: { id: meals } }).then((data) => {
@@ -29,8 +28,9 @@ class MenusController {
 
   postMenu(req, res, next) {
     const userId = req.user.id;
+    const { expiredAt } = req.body;
 
-    menu.create({ userId, expiredAt: req.body.expiredAt }).then((createdMenu) => {
+    menu.create({ userId, expiredAt }).then((createdMenu) => {
       req.menu = createdMenu;
       req.meals = req.body.meals;
 
@@ -54,20 +54,12 @@ class MenusController {
         res.status(201).send({
           message: 'Menu successfully created',
           menu: { ...menu.dataValues, meals: mealRecords },
+          mealsCount: mealRecords.length,
         });
       });
     }).catch((error) => {
       res.status(400).send({ message: error.name });
     });
-  }
-
-  getMenuById(id) {
-    return menu.findOne({
-      include: [{
-        model: meal,
-      }],
-      where: { id },
-    }).then((responseData) => responseData);
   }
 
   getMenuByIdParam(req, res) {
@@ -98,7 +90,6 @@ class MenusController {
         limit: queryLimit,
         offset: queryOffset,
         order: [['id', 'ASC']],
-        where: {},
       }).then((menus) => {
         res.status(200).send({
           menus,
@@ -110,112 +101,98 @@ class MenusController {
     });
   }
 
-  getAllMenusMeals(req, res) {
+  getActiveMenusMeals(req, res) {
     const { limit, offset } = req.query;
-    const queryLimit = limit || 10;
+    const queryLimit = limit;
     const queryOffset = offset || 0;
 
     menu.findAll({
-      include: [{
-        model: meal,
-      }],
-      limit: queryLimit,
-      offset: queryOffset,
-      order: [['id', 'ASC']],
-      where: {},
-    }).then(() => {
-      menuMeal.findAll({
-        include: [{
-          model: meal,
-        }],
-        limit: queryLimit,
-        offset: queryOffset,
-        order: [['id', 'ASC']],
-        where: {},
-      }).then((menus) => {
-        res.status(200).send({
-          menus,
-          limit: queryLimit,
-          offset: queryOffset,
+      where: {
+        expiredAt: {
+          [Op.gt]: new Date(),
+        },
+      },
+    }).then((activeMenus) => {
+      const menuIds = activeMenus.map((menus) => menus.id);
+
+      if (activeMenus) {
+        menuMeal.findAll({
+          include: [{
+            model: meal,
+          }],
+          where: { menuId: menuIds },
+        }).then((menusMeals) => {
+          const mealIds = menusMeals.map((menusMeal) => menusMeal.mealId);
+
+          meal.findAll({
+            where: { id: mealIds },
+            limit: queryLimit,
+            offset: queryOffset,
+            order: [['id', 'ASC']],
+          }).then((mealRecords) => {
+            res.status(200).send({
+              mealRecords,
+              mealsCount: mealRecords.length,
+              limit: queryLimit,
+              offset: queryOffset,
+            });
+          });
         });
-      });
+      } else {
+        res.status(404).send({ message: 'No active Menu(s)' });
+      }
     });
   }
 
-  putMenu(req, res) {
-    const { date, meals } = req.body;
+  putMenu(req, res, next) {
+    const { expiredAt, meals } = req.body;
     const userId = req.user.id;
 
     menu.findOne({ where: { id: req.params.id } }).then((existingMenu) => {
       if (existingMenu) {
-        if (existingMenu.date !== date) {
-          menu.findOne({ where: { date } }).then((alreadyExist) => {
-            if (alreadyExist) {
-              res.status(400).send({
-                message: 'You have a menu for the selected date. Please choose a different date.',
-              });
-            } else {
-              this.updateMenu(req, res, date, meals, userId);
-            }
+        menu.update(
+          {
+            expiredAt,
+            userId,
+          },
+          { where: { id: req.params.id }, returning: true },
+        ).then((updatedMenu) => {
+          meal.findAll({ where: { id: meals } }).then((mealRecords) => {
+            req.menu = updatedMenu;
+            req.meals = mealRecords;
+
+            next();
           });
-        } else {
-          this.updateMenu(req, res, date, meals, userId);
-        }
+        });
       } else {
-        return res.status(404).send({ message: 'Menu not found' });
+        res.status(404).send({ message: 'Menu not found' });
       }
     });
   }
 
-  updateMenu(req, res, date, meals, userId) {
-    menu.update(
-      {
-        date,
-        userId,
-      },
-      { where: { id: req.params.id }, returning: true },
-    ).then((updated) => {
-      const updatedMenu = updated[1][0];
-
-      if (updatedMenu) {
-        if (meals) {
-          this.updateMealsInMenu(req, res, meals, updatedMenu);
-        } else {
-          this.getMenuById(updatedMenu.id).then((responseData) => {
-            if (responseData) {
-              meal.findAll({ where: { id: meals } }).then((mealRecords) => {
-                res.status(200).send({
-                  message: 'Menu successfully updated',
-                  menu: { ...menu.dataValues, meals: mealRecords },
-                });
-              });
-            }
-          });
-        }
-      }
-    });
-  }
-
-  updateMealsInMenu(req, res, meals, updatedMenu) {
+  updateMealsInMenu(req, res) {
     menuMeal.destroy({ where: { menuId: req.params.id } }).then(() => {
       const newMenuMeals = [];
+      const { meals } = req;
+
       meals.forEach((ml) => {
         newMenuMeals.push({
           menuId: req.params.id,
-          mealId: ml,
+          mealId: ml.id,
         });
       });
 
       menuMeal.bulkCreate(newMenuMeals).then(() => {
-        this.getMenuById(updatedMenu.id).then((responseData) => {
-          if (responseData) {
-            meal.findAll({ where: { id: meals } }).then((mealRecords) => {
-              res.status(200).send({
-                message: 'Menu successfully updated',
-                menu: { ...menu.dataValues, meals: mealRecords },
-              });
-            });
-          }
+        menu.findOne({
+          include: [{ model: meal }],
+          where: { id: req.params.id },
+        }).then(() => {
+          res.status(200).send({
+            message: 'Menu successfully updated',
+            mealsCount: meals.length,
+            menu: req.menu[1],
+            meals,
+          });
         });
       });
     });
