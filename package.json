@@ -37,6 +37,8 @@
     "sequelize": "^6.17.0"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/password-hash": "^1.2.21",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.2.4",

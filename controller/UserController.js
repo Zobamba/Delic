@@ -119,6 +119,12 @@ class UserController {
           limit: queryLimit,
           offset: queryOffset,
         });
+      }).catch((error) => {
+        if (error.name === 'SequelizeDatabaseError') {
+          return res.status(400).send({
+            message: 'The limit or offset field(s) must be an integer',
+          });
+        }
       });
     });
   }

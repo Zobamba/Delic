@@ -83,6 +83,21 @@ class MealsController {
     });
   }
 
+  putMeal2(req, res) {
+    meal.findAll({
+      order: sequelize.literal('id'),
+      where: {},
+    }).then((meals) => {
+      meals.forEach((ml) => {
+        meal.update({
+          price2: parseInt(ml.price, 10),
+        }, { where: { id: ml.id } });
+      });
+    }).then((updated) => {
+      res.status(200).send(updated);
+    });
+  }
+
   getMeals(req, res) {
     const { offset, limit, searchKey } = req.query;
     const queryLimit = limit;
@@ -116,6 +131,12 @@ class MealsController {
           limit: queryLimit,
           offset: queryOffset,
         });
+      }).catch((error) => {
+        if (error.name === 'SequelizeDatabaseError') {
+          return res.status(400).send({
+            message: 'The limit or offset field(s) must be an integer',
+          });
+        }
       });
     });
   }
@@ -135,6 +156,18 @@ class MealsController {
       }
     }).catch((error) => {
       res.status(400).send({ message: error.name });
+    });
+  }
+
+  restoreMeals(req, res) {
+    meal.restore({
+      where: {
+        id: {
+          [Op.between]: [0, 611],
+        },
+      },
+    }).then((restored) => {
+      res.sendStatus(200).send(restored);
     });
   }
 }

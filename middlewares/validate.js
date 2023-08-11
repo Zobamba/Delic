@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { buildCheckFunction } from 'express-validator';
 
 const checkBodyAndQuery = buildCheckFunction(['body', 'params', 'query']);
@@ -22,8 +23,4 @@ export const validateQueryString = [
     .withMessage('the offset field must be an integer')
     .custom((value) => value > -1)
     .withMessage('the offset field must be a positive integer'),
-  checkBodyAndQuery('expiredAt')
-    .optional({ nullable: true })
-    .custom((value) => new Date(value).toDateString() !== 'Invalid Date')
-    .withMessage('the date field must be a valid date'),
 ];
