@@ -1,7 +1,6 @@
 /* eslint-disable no-shadow */
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
-
 import sequelize from 'sequelize';
 import models from '../models';
 
@@ -97,50 +96,13 @@ class MenusController {
           limit: queryLimit,
           offset: queryOffset,
         });
-      });
-    });
-  }
-
-  getActiveMenusMeals(req, res) {
-    const { limit, offset } = req.query;
-    const queryLimit = limit;
-    const queryOffset = offset || 0;
-
-    menu.findAll({
-      where: {
-        expiredAt: {
-          [Op.gt]: new Date(),
-        },
-      },
-    }).then((activeMenus) => {
-      const menuIds = activeMenus.map((menus) => menus.id);
-
-      if (activeMenus) {
-        menuMeal.findAll({
-          include: [{
-            model: meal,
-          }],
-          where: { menuId: menuIds },
-        }).then((menusMeals) => {
-          const mealIds = menusMeals.map((menusMeal) => menusMeal.mealId);
-
-          meal.findAll({
-            where: { id: mealIds },
-            limit: queryLimit,
-            offset: queryOffset,
-            order: [['id', 'ASC']],
-          }).then((mealRecords) => {
-            res.status(200).send({
-              mealRecords,
-              mealsCount: mealRecords.length,
-              limit: queryLimit,
-              offset: queryOffset,
-            });
+      }).catch((error) => {
+        if (error.name === 'SequelizeDatabaseError') {
+          return res.status(400).send({
+            message: 'The limit or offset field(s) must be an integer',
           });
-        });
-      } else {
-        res.status(404).send({ message: 'No active Menu(s)' });
-      }
+        }
+      });
     });
   }
 
@@ -210,6 +172,56 @@ class MenusController {
         res.status(404).send({
           message: 'Menu not found',
         });
+      }
+    });
+  }
+
+  getActiveMenusMeals(req, res) {
+    const { limit, offset, category } = req.query;
+    const queryLimit = limit;
+    const queryOffset = offset || 0;
+    const queryCategory = category || 'main dishes';
+
+    menu.findAll({
+      where: {
+        expiredAt: {
+          [Op.gt]: new Date(),
+        },
+      },
+    }).then((activeMenus) => {
+      const menuIds = activeMenus.map((menus) => menus.id);
+
+      if (activeMenus) {
+        menuMeal.findAll({
+          include: [{
+            model: meal,
+          }],
+          where: { menuId: menuIds },
+        }).then((menusMeals) => {
+          const mealIds = menusMeals.map((menusMeal) => menusMeal.mealId);
+
+          meal.findAll({
+            where: { id: mealIds, category: queryCategory },
+            limit: queryLimit,
+            offset: queryOffset,
+            order: [['id', 'ASC']],
+          }).then((mealRecords) => {
+            res.status(200).send({
+              mealRecords,
+              mealsCount: mealRecords.length,
+              limit: queryLimit,
+              offset: queryOffset,
+            });
+          }).catch((error) => {
+            if (error.name === 'SequelizeDatabaseError') {
+              return res.status(400).send({
+                message: 'The limit or offset field(s) must be an integer',
+              });
+            }
+          });
+        });
+      } else {
+        res.status(404).send({ message: 'No active Menu(s)' });
       }
     });
   }

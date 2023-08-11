@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-shadow */
 /* eslint-disable class-methods-use-this */
 import models from '../models';
@@ -179,6 +180,12 @@ class OrderController {
           limit: queryLimit,
           offset: queryOffset,
         });
+      }).catch((error) => {
+        if (error.name === 'SequelizeDatabaseError') {
+          return res.status(400).send({
+            message: 'The limit or offset field(s) must be an integer',
+          });
+        }
       });
     });
   }
