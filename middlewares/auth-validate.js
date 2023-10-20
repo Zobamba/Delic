@@ -14,9 +14,9 @@ export const signUpConstraints = [
 
   body('firstName')
     .exists()
-    .withMessage('firstName field is require')
+    .withMessage('firstName field is required')
     .isLength({ min: 1 })
-    .withMessage('firstName field is require')
+    .withMessage('firstName field is required')
     .isString()
     .withMessage('the name must be a string')
     .trim(),
@@ -44,7 +44,7 @@ export const signUpConstraints = [
     .isLength({ min: 1 })
     .withMessage('password confirmation is required')
     .custom((value, { req }) => value === req.body.password)
-    .withMessage('password confirmation should match password'),
+    .withMessage('password confirmation must match password'),
 ];
 
 export const signInConstraints = [
@@ -64,6 +64,35 @@ export const signInConstraints = [
     .withMessage('password is required'),
 ];
 
+export const authSignInConstraints = [
+  body('email')
+    .exists()
+    .withMessage('email is required')
+    .isLength({ min: 1 })
+    .withMessage('email is required')
+    .isEmail()
+    .withMessage('email field must contain a valid email address')
+    .trim(),
+
+  body('firstName')
+    .exists()
+    .withMessage('firstName field is required')
+    .isLength({ min: 1 })
+    .withMessage('firstName field is required')
+    .isString()
+    .withMessage('the name must be a string')
+    .trim(),
+
+  body('lastName')
+    .exists()
+    .withMessage('lastName field is required')
+    .isLength({ min: 1 })
+    .withMessage('lastName field is required')
+    .isString()
+    .withMessage('the name must be a string')
+    .trim(),
+];
+
 export const updateUserConstraints = [
   body('admin')
     .optional({ nullable: true })
@@ -74,6 +103,94 @@ export const updateUserConstraints = [
     .optional({ nullable: true })
     .isBoolean()
     .withMessage('Disable field must be a boolean'),
+];
+
+export const updateProfileConstraints = [
+  body('firstName')
+    .optional({ nullable: true })
+    .isLength({ min: 1 })
+    .withMessage('firstName field is required')
+    .isString()
+    .withMessage('the name must be a string')
+    .trim(),
+
+  body('lastName')
+    .optional({ nullable: true })
+    .isLength({ min: 1 })
+    .withMessage('lastName field is required')
+    .isString()
+    .withMessage('the name must be a string')
+    .trim(),
+
+  body('phoneNumber')
+    .optional({ nullable: true })
+    .isLength({ min: 1 })
+    .withMessage('phoneNumber field is required')
+    .isString()
+    .withMessage('the phoneNumber must be a string')
+    .trim(),
+];
+
+export const changePasswordConstraints = [
+  body('currentPassword')
+    .exists()
+    .withMessage('password is required')
+    .isLength({ min: 1 })
+    .withMessage('password is required')
+    .isLength({ min: 8 })
+    .withMessage('password must contain at least 8 characters'),
+
+  body('newPassword')
+    .exists()
+    .withMessage('password is required')
+    .isLength({ min: 1 })
+    .withMessage('password is required')
+    .isLength({ min: 8 })
+    .withMessage('password must contain at least 8 characters'),
+
+  body('confirmPassword')
+    .exists()
+    .withMessage('password confirmation is required')
+    .isLength({ min: 1 })
+    .withMessage('password confirmation is required')
+    .custom((value, { req }) => value === req.body.newPassword)
+    .withMessage('password confirmation must match newPassword'),
+];
+
+export const pwdRecoveryEmailConstraints = [
+  body('recipientEmail')
+    .exists()
+    .withMessage('email is required')
+    .isLength({ min: 1 })
+    .withMessage('email is required')
+    .isEmail()
+    .withMessage('email field must contain a valid email address')
+    .trim(),
+];
+
+export const forgotPasswordConstraints = [
+  // body('recoveryPasswordId')
+  //   .exists()
+  //   .withMessage('email is required')
+  //   .isLength({ min: 1 })
+  //   .withMessage('email is required')
+  //   .trim(),
+
+  body('newPassword')
+    .exists()
+    .withMessage('password is required')
+    .isLength({ min: 1 })
+    .withMessage('password is required')
+    .isLength({ min: 8 })
+    .withMessage('password must contain at least 8 characters'),
+
+  body('confirmPassword')
+    .exists()
+    .withMessage('password confirmation is required')
+    .isLength({ min: 1 })
+    .withMessage('password confirmation is required')
+    .custom((value, { req }) => value === req.body.newPassword)
+    .withMessage('password confirmation must match newPassword'),
 ];
 
 export function verifyAuthToken(req, res, next) {
@@ -119,6 +236,7 @@ export const checkIfAdmin = (req, res, next) => {
   }
   next();
 };
+
 export const checkIfDisabled = (req, res, next) => {
   const { user } = req;
   if (user.disable) {

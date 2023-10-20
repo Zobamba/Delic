@@ -1,13 +1,20 @@
 /* eslint-disable import/prefer-default-export */
-import { buildCheckFunction } from 'express-validator';
+import { buildCheckFunction, param } from 'express-validator';
 
 const checkBodyAndQuery = buildCheckFunction(['body', 'params', 'query']);
 
 export const validParamId = [
-  checkBodyAndQuery('id')
+  param('id')
     .optional({ nullable: true })
     .isInt()
     .withMessage('wrong id format, must be an integer'),
+];
+
+export const validateQueryEmail = [
+  checkBodyAndQuery('email')
+    .optional({ nullable: true })
+    .isEmail()
+    .withMessage('must be a valid email address'),
 ];
 
 export const validateQueryString = [

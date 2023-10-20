@@ -23,13 +23,11 @@ class MealsController {
           message: `A meal with the name '${req.body.name}' already exists`,
         });
       } else {
-        newMeal.save().then((response) => {
-          meal.findOne({
-            where: { id: response.id },
-          }).then((createdMeal) => res.status(201).send({
+        newMeal.save().then((createdMeal) => {
+          res.status(201).send({
             message: 'Meal successfully created',
             meal: createdMeal,
-          }));
+          });
         });
       }
     });
@@ -80,21 +78,6 @@ class MealsController {
           message: `A meal with the name '${req.body.name}' already exists`,
         });
       }
-    });
-  }
-
-  putMeal2(req, res) {
-    meal.findAll({
-      order: sequelize.literal('id'),
-      where: {},
-    }).then((meals) => {
-      meals.forEach((ml) => {
-        meal.update({
-          price2: parseInt(ml.price, 10),
-        }, { where: { id: ml.id } });
-      });
-    }).then((updated) => {
-      res.status(200).send(updated);
     });
   }
 
@@ -156,18 +139,6 @@ class MealsController {
       }
     }).catch((error) => {
       res.status(400).send({ message: error.name });
-    });
-  }
-
-  restoreMeals(req, res) {
-    meal.restore({
-      where: {
-        id: {
-          [Op.between]: [0, 611],
-        },
-      },
-    }).then((restored) => {
-      res.sendStatus(200).send(restored);
     });
   }
 }

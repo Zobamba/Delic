@@ -25,12 +25,15 @@ class OrderController {
   }
 
   postOrder(req, res, next) {
-    const { address, phoneNumber, meals } = req.body;
+    const {
+      address, paymentReference, phoneNumber, meals,
+    } = req.body;
     const userId = req.user.id;
     const mealIds = meals.map((ml) => ml.mealId);
 
     order.create({
       phoneNumber,
+      paymentReference,
       address,
       userId,
     }).then((createdOrder) => {
@@ -162,7 +165,7 @@ class OrderController {
 
   getOrders(req, res) {
     const { limit, offset } = req.query;
-    const queryLimit = limit || 10;
+    const queryLimit = limit;
     const queryOffset = offset || 0;
 
     order.count().then((count) => {

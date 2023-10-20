@@ -5,8 +5,11 @@
         "DATEONLY",
         "delic",
         "hstore",
+        "mailgen",
         "middlewares",
-        "onah"
+        "onah",
+        "outro",
+        "uuidv"
     ]
 }
 

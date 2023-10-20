@@ -1,7 +1,8 @@
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
 import passwordHash from 'password-hash';
-import { signJsonWebToken, getErrorMessage } from './Util.js';
+import { v4 as uuidv4 } from 'uuid';
+import { signJsonWebToken, getErrorMessage, sendEmail } from './Util.js';
 import models from '../models';
 
 const { user } = models;
@@ -64,6 +65,52 @@ class UserController {
     });
   }
 
+  authSignIn(req, res) {
+    user.findOne({
+      where: {
+        email: req.body.email,
+      },
+    }).then((usr) => {
+      if (usr === null) {
+        user.create({
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          email: req.body.email,
+        }).then((createdUser) => {
+          res.status(201).send({
+            id: createdUser.id,
+            firstName: createdUser.firstName,
+            lastName: createdUser.lastName,
+            email: createdUser.email,
+            message: 'User successfully created',
+            token: signJsonWebToken(createdUser),
+          });
+        }).catch((error) => {
+          if (error) {
+            return res.status(401).send(getErrorMessage(error));
+          }
+
+          res.status(400).send({
+            message: 'An error occurred while trying to sign up. Please try again',
+          });
+        });
+      }
+
+      if (usr) {
+        return res.status(201).send({
+          id: usr.id,
+          firstName: usr.firstName,
+          lastName: usr.lastName,
+          email: usr.email,
+          message: 'Sign in successful',
+          token: signJsonWebToken(usr),
+        });
+      }
+    }).catch((error) => {
+      res.status(401).send(getErrorMessage(error));
+    });
+  }
+
   putUser(req, res) {
     user.update(
       {
@@ -87,6 +134,31 @@ class UserController {
       res.status(404).send({
         message: 'User not found',
       });
+    });
+  }
+
+  editProfile(req, res) {
+    user.findOne({
+      where: {
+        id: req.user.id,
+      },
+    }).then((usr) => {
+      if (usr) {
+        user.update(
+          {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            phoneNumber: req.body.phoneNumber,
+          },
+          { where: { id: req.user.id } },
+        ).then((updated) => {
+          if (updated) {
+            return res.status(200).send({
+              message: 'Profile successfully updated',
+            });
+          }
+        });
+      }
     });
   }
 
@@ -138,7 +210,128 @@ class UserController {
       } else {
         res.status(404).send({ message: 'User not found' });
       }
+    }).catch((error) => {
+      if (error.name === 'SequelizeDatabaseError') {
+        return res.status(400).send({
+          message: 'wrong id format, must be an integer',
+        });
+      }
     });
+  }
+
+  getUserByEmail(req, res) {
+    user.findOne({
+      where: { email: req.params.email },
+    }).then((responseData) => {
+      if (responseData) {
+        res.status(200).send({ user: responseData });
+      } else {
+        res.status(404).send({ message: 'User not found' });
+      }
+    });
+  }
+
+  getUser(req, res) {
+    user.findOne({
+      where: { id: req.user.id },
+    }).then((responseData) => {
+      if (responseData) {
+        res.status(200).send({ user: responseData });
+      } else {
+        res.status(404).send({ message: 'User not found' });
+      }
+    });
+  }
+
+  changePassword(req, res) {
+    user.findOne({
+      where: {
+        id: req.user.id,
+      },
+    }).then((usr) => {
+      if (passwordHash.verify(req.body.currentPassword, usr.passwordHash)) {
+        user.update(
+          {
+            passwordHash: passwordHash.generate(req.body.newPassword),
+          },
+          {
+            where: {
+              id: req.user.id,
+            },
+          },
+        ).then((changedPassword) => {
+          if (changedPassword) {
+            return res.status(200).send({
+              message: 'Password changed successfully',
+            });
+          }
+        });
+      } else {
+        return res.status(400).send({
+          message: 'Wrong password',
+        });
+      }
+    });
+  }
+
+  forgotPassword(req, res) {
+    const { recoveryPasswordId } = req.query;
+
+    user.findOne({
+      where: {
+        // email: req.body.email,
+        recoveryPasswordId,
+      },
+    }).then((usr) => {
+      if (usr) {
+        user.update(
+          {
+            passwordHash: passwordHash.generate(req.body.newPassword),
+            recoveryPasswordId: null,
+          },
+          {
+            where: {
+              id: usr.id,
+            },
+          },
+        ).then((changedPassword) => {
+          if (changedPassword) {
+            return res.status(200).send({
+              message: 'Your new Password has been created successfully',
+            });
+          }
+        });
+      } else {
+        res.status(404).send({ message: 'User not found' });
+      }
+    });
+  }
+
+  sendRecoveryPasswordId(req, res, next) {
+    user.update(
+      {
+        recoveryPasswordId: uuidv4(),
+      },
+      {
+        where: { email: req.body.recipientEmail }, returning: true,
+      },
+    ).then((updated) => {
+      const updatedUser = updated[1][0];
+
+      if (updatedUser) {
+        return next();
+      }
+
+      res.status(404).send({
+        message: 'User not found',
+      });
+    });
+  }
+
+  sendMail(req, res) {
+    sendEmail(req.body)
+      .then((response) => res.status(200).send(response))
+      .catch((error) => res.status(404).send({ message: error.message }));
   }
 }
 
