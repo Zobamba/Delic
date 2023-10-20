@@ -23,13 +23,11 @@ class MealsController {
           message: `A meal with the name '${req.body.name}' already exists`,
         });
       } else {
-        newMeal.save().then((response) => {
-          meal.findOne({
-            where: { id: response.id },
-          }).then((createdMeal) => res.status(201).send({
+        newMeal.save().then((createdMeal) => {
+          res.status(201).send({
             message: 'Meal successfully created',
             meal: createdMeal,
-          }));
+          });
         });
       }
     });

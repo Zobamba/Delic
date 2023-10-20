@@ -41,6 +41,7 @@ class MenusController {
     const { meals, menu } = req;
 
     const newMenuMeals = [];
+
     meals.forEach((ml) => {
       newMenuMeals.push({
         menuId: menu.id,
@@ -97,11 +98,12 @@ class MenusController {
           offset: queryOffset,
         });
       }).catch((error) => {
-        if (error.name === 'SequelizeDatabaseError') {
-          return res.status(400).send({
-            message: 'The limit or offset field(s) must be an integer',
-          });
-        }
+        // if (error.name === 'SequelizeDatabaseError') {
+        //   return res.status(400).send({
+        //     message: 'The limit or offset field(s) must be an integer',
+        //   });
+        // }
+        console.log(error);
       });
     });
   }
