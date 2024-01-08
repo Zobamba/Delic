@@ -2,13 +2,15 @@
 /* eslint-disable class-methods-use-this */
 import passwordHash from 'password-hash';
 import { v4 as uuidv4 } from 'uuid';
-import { signJsonWebToken, getErrorMessage, sendEmail } from './Util.js';
+import {
+  signJsonWebToken, getErrorMessage, sendEmail, sendSignUpEmail, sendLoginEmail,
+} from './Util.js';
 import models from '../models';
 
 const { user } = models;
 
 class UserController {
-  signUp(req, res) {
+  signUp(req, res, next) {
     user.create({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
@@ -22,7 +24,7 @@ class UserController {
         lastName: usr.lastName,
         email: usr.email,
         phoneNumber: usr.phoneNumber,
-        message: 'User successfully created',
+        message: 'User created successfully',
         token: signJsonWebToken(usr),
       });
     }).catch((error) => {
@@ -36,9 +38,10 @@ class UserController {
         message: 'An error occurred while trying to sign up. Please try again',
       });
     });
+    return next();
   }
 
-  signIn(req, res) {
+  signIn(req, res, next) {
     user.findOne({
       where: {
         email: req.body.email,
@@ -63,6 +66,8 @@ class UserController {
     }).catch((error) => {
       res.status(401).send(getErrorMessage(error));
     });
+
+    return next();
   }
 
   authSignIn(req, res) {
@@ -82,7 +87,7 @@ class UserController {
             firstName: createdUser.firstName,
             lastName: createdUser.lastName,
             email: createdUser.email,
-            message: 'User successfully created',
+            message: 'User created successfully',
             token: signJsonWebToken(createdUser),
           });
         }).catch((error) => {
@@ -126,7 +131,7 @@ class UserController {
 
       if (updatedUser) {
         return res.status(200).send({
-          message: 'User successfully updated',
+          message: 'User updated successfully',
           user: updatedUser,
         });
       }
@@ -137,26 +142,19 @@ class UserController {
     });
   }
 
-  editProfile(req, res) {
-    user.findOne({
-      where: {
-        id: req.user.id,
+  UpdateProfile(req, res) {
+    user.update(
+      {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        phoneNumber: req.body.phoneNumber,
+        photoUrl: req.body.photoUrl,
       },
-    }).then((usr) => {
-      if (usr) {
-        user.update(
-          {
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            phoneNumber: req.body.phoneNumber,
-          },
-          { where: { id: req.user.id } },
-        ).then((updated) => {
-          if (updated) {
-            return res.status(200).send({
-              message: 'Profile successfully updated',
-            });
-          }
+      { where: { id: req.user.id } },
+    ).then((updated) => {
+      if (updated) {
+        return res.status(200).send({
+          message: 'Profile updated successfully',
         });
       }
     });
@@ -279,7 +277,6 @@ class UserController {
 
     user.findOne({
       where: {
-        // email: req.body.email,
         recoveryPasswordId,
       },
     }).then((usr) => {
@@ -332,6 +329,24 @@ class UserController {
     sendEmail(req.body)
       .then((response) => res.status(200).send(response))
       .catch((error) => res.status(404).send({ message: error.message }));
+  }
+
+  sendSignUpMail(req, res) {
+    const { firstName, email } = req.body;
+    sendSignUpEmail({ firstName, recipientEmail: email })
+      .then()
+      .catch((error) => {
+        res.status(404).send({ message: error.message });
+      });
+  }
+
+  sendLoginMail(req, res) {
+    const { email } = req.body;
+    sendLoginEmail({ recipientEmail: email })
+      .then()
+      .catch((error) => {
+        res.status(404).send({ message: error.message });
+      });
   }
 }
 

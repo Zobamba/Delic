@@ -13,6 +13,7 @@ const corsOptions = {
   origin: ['http://localhost:3000', 'http://localhost:3002'],
   credentials: true,
 };
+
 app.use(cors(corsOptions));
 
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));

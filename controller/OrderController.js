@@ -2,6 +2,7 @@
 /* eslint-disable no-shadow */
 /* eslint-disable class-methods-use-this */
 import models from '../models';
+import { getErrorMessage } from './Util';
 
 const { order, meal, orderMeal } = models;
 
@@ -26,7 +27,7 @@ class OrderController {
 
   postOrder(req, res, next) {
     const {
-      address, paymentReference, phoneNumber, meals,
+      address, paymentReference, phoneNumber, meals, status,
     } = req.body;
     const userId = req.user.id;
     const mealIds = meals.map((ml) => ml.mealId);
@@ -36,6 +37,7 @@ class OrderController {
       paymentReference,
       address,
       userId,
+      status,
     }).then((createdOrder) => {
       meal.findAll({ where: { id: mealIds } }).then((mealRecords) => {
         req.order = createdOrder;
@@ -76,7 +78,9 @@ class OrderController {
   }
 
   putOrder(req, res, next) {
-    const { address, phoneNumber, meals } = req.body;
+    const {
+      address, phoneNumber, status, meals,
+    } = req.body;
     const mealIds = meals.map((ml) => ml.mealId);
     const userId = req.user.id;
 
@@ -86,6 +90,7 @@ class OrderController {
           {
             address,
             phoneNumber,
+            status,
             userId,
           },
           { where: { id: req.params.id }, returning: true },
@@ -141,10 +146,10 @@ class OrderController {
   }
 
   getOrderByIdParam(req, res) {
-    orderMeal.findAll({ where: { orderId: req.params.id } }).then((orderMeal) => {
+    orderMeal.findAll({ where: { orderId: req.params.id } }).then((orderMeals) => {
       let totalPrice = 0;
 
-      orderMeal.forEach((ml) => {
+      orderMeals.forEach((ml) => {
         totalPrice = (ml.price * ml.units) + totalPrice;
       });
 
@@ -177,18 +182,94 @@ class OrderController {
         offset: queryOffset,
         order: [['id', 'ASC']],
       }).then((orders) => {
-        res.status(200).send({
-          orders,
-          count,
-          limit: queryLimit,
-          offset: queryOffset,
-        });
-      }).catch((error) => {
-        if (error.name === 'SequelizeDatabaseError') {
-          return res.status(400).send({
-            message: 'The limit or offset field(s) must be an integer',
+        const promises = orders.map((odr) => orderMeal.findAll({ where: { orderId: odr.id } })
+          .then((orderMeals) => {
+            let totalPrice = 0;
+
+            orderMeals.forEach((ml) => {
+              totalPrice = (ml.price * ml.units) + totalPrice;
+            });
+
+            return order.findOne({
+              include: [{
+                model: meal,
+              }],
+              where: { id: odr.id },
+            }).then((responseData) => {
+              if (responseData) {
+                return { order: responseData, totalPrice };
+              }
+              return { message: 'Order not found' };
+            });
+          }));
+
+        Promise.all(promises)
+          .then((results) => {
+            res.status(200).send({
+              orders: results,
+              count,
+              limit: queryLimit,
+              offset: queryOffset,
+            });
+          })
+          .catch((error) => {
+            res.status(401).send(getErrorMessage(error));
           });
-        }
+      }).catch((error) => {
+        res.status(401).send(getErrorMessage(error));
+      });
+    });
+  }
+
+  getLastTenOrders(req, res) {
+    const { limit, offset } = req.query;
+    const queryLimit = limit || 10;
+    const queryOffset = offset || 0;
+
+    order.count().then((count) => {
+      order.findAll({
+        include: [{
+          model: meal,
+        }],
+        limit: queryLimit,
+        offset: queryOffset,
+        order: [['createdAt', 'DESC']],
+      }).then((orders) => {
+        const promises = orders.map((odr) => orderMeal.findAll({ where: { orderId: odr.id } })
+          .then((orderMeals) => {
+            let totalPrice = 0;
+
+            orderMeals.forEach((ml) => {
+              totalPrice = (ml.price * ml.units) + totalPrice;
+            });
+
+            return order.findOne({
+              include: [{
+                model: meal,
+              }],
+              where: { id: odr.id },
+            }).then((responseData) => {
+              if (responseData) {
+                return { order: responseData, totalPrice };
+              }
+              return { message: 'Order not found' };
+            });
+          }));
+
+        Promise.all(promises)
+          .then((results) => {
+            res.status(200).send({
+              orders: results,
+              count,
+              limit: queryLimit,
+              offset: queryOffset,
+            });
+          })
+          .catch((error) => {
+            res.status(401).send(getErrorMessage(error));
+          });
+      }).catch((error) => {
+        res.status(401).send(getErrorMessage(error));
       });
     });
   }

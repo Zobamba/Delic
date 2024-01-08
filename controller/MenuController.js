@@ -3,6 +3,7 @@
 /* eslint-disable class-methods-use-this */
 import sequelize from 'sequelize';
 import models from '../models';
+import { getErrorMessage } from './Util';
 
 const { Op } = sequelize;
 
@@ -98,11 +99,7 @@ class MenusController {
           offset: queryOffset,
         });
       }).catch((error) => {
-        // if (error.name === 'SequelizeDatabaseError') {
-        //   return res.status(400).send({
-        //     message: 'The limit or offset field(s) must be an integer',
-        //   });
-        // }
+        getErrorMessage(error);
         console.log(error);
       });
     });
@@ -215,11 +212,8 @@ class MenusController {
               offset: queryOffset,
             });
           }).catch((error) => {
-            if (error.name === 'SequelizeDatabaseError') {
-              return res.status(400).send({
-                message: 'The limit or offset field(s) must be an integer',
-              });
-            }
+            getErrorMessage(error);
+            console.log(error);
           });
         });
       } else {
