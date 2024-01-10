@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon -r esm index.js",
+    "start": "node -r esm index.js",
     "migrate": "npx sequelize-cli db:migrate",
     "undo-migration": "npx sequelize-cli db:migrate:undo",
     "undo-specific": "npx sequelize-cli db:migrate:undo --name"
