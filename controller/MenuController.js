@@ -3,7 +3,7 @@
 /* eslint-disable class-methods-use-this */
 import sequelize from 'sequelize';
 import models from '../models';
-import { getErrorMessage } from './Util';
+import { getErrorMessage } from '../utils/Util';
 
 const { Op } = sequelize;
 

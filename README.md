@@ -1,2 +1,2 @@
 # Delic
-An Online Restaurant
+This is the Backend for Delic Food Application

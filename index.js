@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import dbConnection from './utils/database.js';
 import routes from './routes/routes';
 
 const dotenv = require('dotenv');
@@ -10,7 +11,7 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:3002'],
+  origin: ['http://localhost:3000', 'http://localhost:3002', 'https://delic-admin-point-621r.vercel.app'],
   credentials: true,
 };
 
@@ -29,5 +30,7 @@ app.get('/', (req, res) => {
 });
 
 routes(app);
+
+dbConnection();
 
 app.listen(port, () => console.log(`index app listening on port ${port}!`));

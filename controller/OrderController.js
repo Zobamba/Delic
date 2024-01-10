@@ -2,7 +2,7 @@
 /* eslint-disable no-shadow */
 /* eslint-disable class-methods-use-this */
 import models from '../models';
-import { getErrorMessage } from './Util';
+import { getErrorMessage } from '../utils/Util';
 
 const { order, meal, orderMeal } = models;
 

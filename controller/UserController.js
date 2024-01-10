@@ -4,7 +4,7 @@ import passwordHash from 'password-hash';
 import { v4 as uuidv4 } from 'uuid';
 import {
   signJsonWebToken, getErrorMessage, sendEmail, sendSignUpEmail, sendLoginEmail,
-} from './Util.js';
+} from '../utils/Util';
 import models from '../models';
 
 const { user } = models;
