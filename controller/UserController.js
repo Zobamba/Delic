@@ -164,7 +164,7 @@ class UserController {
     const {
       limit, offset, admin, disable,
     } = req.query;
-    const queryLimit = limit || 10;
+    const queryLimit = limit;
     const queryOffset = offset || 0;
     const whereClause = {};
 
