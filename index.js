@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:3002', 'https://delic-admin-point-621r.vercel.app', 'https://golden-bombolone-6c8080.netlify.app'],
+  origin: ['http://localhost:3000', 'http://localhost:3002', 'https://delic-admin-point-621r.vercel.app', 'https://delic-admin.netlify.app'],
   credentials: true,
 };
 
