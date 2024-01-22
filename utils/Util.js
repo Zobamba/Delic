@@ -30,11 +30,12 @@ export function sendEmail({ recipientEmail }) {
     }).then((responseData) => {
       if (responseData) {
         const transporter = nodemailer.createTransport({
-          host: 'sandbox.smtp.mailtrap.io',
-          port: 2525,
+          // host: '127.0.0.1',
+          // port: 1025,
+          service: 'gmail',
           auth: {
-            user: process.env.MAILTRAP_USER,
-            pass: process.env.MAILTRAP_PASSWORD,
+            user: process.env.MY_EMAIL,
+            pass: process.env.MY_PASSWORD,
           },
         });
 
@@ -45,9 +46,9 @@ export function sendEmail({ recipientEmail }) {
             action: {
               instructions: 'Please click the link below to complete the reset.',
               button: {
-                color: '#22BC66', // Optional action button color
+                color: '#1da1f2', // Optional action button color
                 text: 'Confirm your account',
-                link: `http://localhost:3000/resetPassword?recoveryPasswordId=${responseData.recoveryPasswordId}`,
+                link: `https://delic-admin.netlify.app/resetPassword?recoveryPasswordId=${responseData.recoveryPasswordId}`,
               },
             },
             outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.',
@@ -89,11 +90,10 @@ export function sendEmail({ recipientEmail }) {
 export function sendSignUpEmail({ firstName, recipientEmail }) {
   return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport({
-      host: 'sandbox.smtp.mailtrap.io',
-      port: 2525,
+      service: 'gmail',
       auth: {
-        user: process.env.MAILTRAP_USER,
-        pass: process.env.MAILTRAP_PASSWORD,
+        user: process.env.MY_EMAIL,
+        pass: process.env.MY_PASSWORD,
       },
     });
 
@@ -104,9 +104,9 @@ export function sendSignUpEmail({ firstName, recipientEmail }) {
         action: {
           instructions: 'Use the link below to sign into your delic account',
           button: {
-            color: '#22BC66', // Optional action button color
+            color: '#1da1f2', // Optional action button color
             text: 'Login',
-            link: 'http://localhost:3000/sign-in',
+            link: 'https://delic-admin.netlify.app/sign-in',
           },
         },
         outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.',
@@ -148,11 +148,10 @@ export function sendLoginEmail({ recipientEmail }) {
     }).then((responseData) => {
       if (responseData) {
         const transporter = nodemailer.createTransport({
-          host: 'sandbox.smtp.mailtrap.io',
-          port: 2525,
+          service: 'gmail',
           auth: {
-            user: process.env.MAILTRAP_USER,
-            pass: process.env.MAILTRAP_PASSWORD,
+            user: process.env.MY_EMAIL,
+            pass: process.env.MY_PASSWORD,
           },
         });
 
@@ -164,9 +163,9 @@ export function sendLoginEmail({ recipientEmail }) {
             action: {
               instructions: 'If this was you, no action is required, If this wasn’t you, follow the link to secure the account.',
               button: {
-                color: '#22BC66', // Optional action button color
+                color: '#1da1f2', // Optional action button color
                 text: 'Change my password now',
-                link: 'http://localhost:3000/changePassword',
+                link: 'https://delic-admin.netlify.app/changePassword',
               },
             },
             outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.',
