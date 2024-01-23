@@ -82,16 +82,16 @@ class UserController {
           lastName: req.body.lastName,
           email: req.body.email,
         }).then((createdUser) => {
+          const token = signJsonWebToken(createdUser);
           res.status(201).send({
             id: createdUser.id,
             firstName: createdUser.firstName,
             lastName: createdUser.lastName,
             email: createdUser.email,
-            message: 'User created successfully',
-            token: signJsonWebToken(createdUser),
+            message: 'User created and signed in successfully',
+            token,
           });
-        }).catch((error) => {
-          console.log(error);
+        }).catch(() => {
           res.status(400).send({
             message: 'An error occurred while trying to sign up. Please try again',
           });
@@ -99,13 +99,14 @@ class UserController {
       }
 
       if (usr) {
+        const token = signJsonWebToken(usr);
         return res.status(201).send({
           id: usr.id,
           firstName: usr.firstName,
           lastName: usr.lastName,
           email: usr.email,
           message: 'Sign in successful',
-          token: signJsonWebToken(usr),
+          token,
         });
       }
     }).catch((error) => {
