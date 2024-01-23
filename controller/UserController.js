@@ -91,10 +91,7 @@ class UserController {
             token: signJsonWebToken(createdUser),
           });
         }).catch((error) => {
-          if (error) {
-            return res.status(401).send(getErrorMessage(error));
-          }
-
+          console.log(error);
           res.status(400).send({
             message: 'An error occurred while trying to sign up. Please try again',
           });
