@@ -70,7 +70,7 @@ class UserController {
     return next();
   }
 
-  authSignIn(req, res) {
+  authSignIn(req, res, next) {
     user.findOne({
       where: {
         email: req.body.email,
@@ -90,7 +90,7 @@ class UserController {
       }
 
       // If the user doesn't exist, create a new user
-      user.create({
+      return user.create({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
@@ -106,14 +106,14 @@ class UserController {
         });
       }).catch((error) => {
         console.log(error);
-        res.status(400).json({
+        return res.status(400).json({
           message: 'An error occurred while trying to sign up. Please try again',
         });
       });
-    }).catch((error) => {
-      res.status(401).json({
-        error: getErrorMessage(error),
-      });
+    }).catch((error) => res.status(401).json({
+      error: getErrorMessage(error),
+    })).finally(() => {
+      next();
     });
   }
 
