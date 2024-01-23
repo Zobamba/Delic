@@ -70,37 +70,16 @@ class UserController {
     return next();
   }
 
-  authSignIn(req, res, next) {
+  authSignIn(req, res) {
     user.findOne({
       where: {
         email: req.body.email,
       },
     }).then((usr) => {
-      if (usr === null) {
-        user.create({
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          email: req.body.email,
-        }).then((createdUser) => {
-          const token = signJsonWebToken(createdUser);
-          res.status(201).send({
-            id: createdUser.id,
-            firstName: createdUser.firstName,
-            lastName: createdUser.lastName,
-            email: createdUser.email,
-            message: 'User created and signed in successfully',
-            token,
-          });
-        }).catch(() => {
-          res.status(400).send({
-            message: 'An error occurred while trying to sign up. Please try again',
-          });
-        });
-      }
-
       if (usr) {
+        // User found, sign in and return token
         const token = signJsonWebToken(usr);
-        return res.status(201).send({
+        return res.status(201).json({
           id: usr.id,
           firstName: usr.firstName,
           lastName: usr.lastName,
@@ -109,11 +88,33 @@ class UserController {
           token,
         });
       }
-    }).catch((error) => {
-      res.status(401).send(getErrorMessage(error));
-    });
 
-    return next();
+      // If the user doesn't exist, create a new user
+      user.create({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+      }).then((createdUser) => {
+        const token = signJsonWebToken(createdUser);
+        res.status(201).json({
+          id: createdUser.id,
+          firstName: createdUser.firstName,
+          lastName: createdUser.lastName,
+          email: createdUser.email,
+          message: 'User created and signed in successfully',
+          token,
+        });
+      }).catch((error) => {
+        console.log(error);
+        res.status(400).json({
+          message: 'An error occurred while trying to sign up. Please try again',
+        });
+      });
+    }).catch((error) => {
+      res.status(401).json({
+        error: getErrorMessage(error),
+      });
+    });
   }
 
   putUser(req, res) {
