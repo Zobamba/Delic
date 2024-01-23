@@ -70,7 +70,7 @@ class UserController {
     return next();
   }
 
-  authSignIn(req, res) {
+  authSignIn(req, res, next) {
     user.findOne({
       where: {
         email: req.body.email,
@@ -114,6 +114,8 @@ class UserController {
     }).catch((error) => {
       res.status(401).send(getErrorMessage(error));
     });
+
+    return next();
   }
 
   putUser(req, res) {
