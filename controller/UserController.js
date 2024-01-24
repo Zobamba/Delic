@@ -52,7 +52,7 @@ class UserController {
       }
 
       if (passwordHash.verify(req.body.password, usr.passwordHash)) {
-        return res.status(201).send({
+        res.status(201).send({
           id: usr.id,
           firstName: usr.firstName,
           lastName: usr.lastName,
@@ -60,14 +60,17 @@ class UserController {
           message: 'Sign in successful',
           token: signJsonWebToken(usr),
         });
+
+        return next();
       }
 
       res.status(401).send({ message: 'User not found' });
     }).catch((error) => {
+      console.log(error);
       res.status(401).send(getErrorMessage(error));
     });
 
-    return next();
+    // return next();
   }
 
   authSignIn(req, res, next) {
