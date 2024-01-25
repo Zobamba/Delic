@@ -164,7 +164,7 @@ export function sendLoginEmail({ recipientEmail }) {
               instructions: 'If this was you, no action is required, If this wasn’t you, follow the link to secure the account.',
               button: {
                 color: '#1da1f2', // Optional action button color
-                text: 'Change my password now',
+                text: 'Change your password now',
                 link: 'https://delic-admin.netlify.app/changePassword',
               },
             },
