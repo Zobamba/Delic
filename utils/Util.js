@@ -100,9 +100,9 @@ export function sendSignUpEmail({ firstName, recipientEmail }) {
     const email = {
       body: {
         name: firstName,
-        intro: 'We are delighted to have you on board. With Delic, you can order, manage and savour your favorite dishes.',
+        intro: 'We are delighted to have you on board. With Delic admin, you get effortless order management, dynamic menu customization, and real-time analytics - all in one platform!.',
         action: {
-          instructions: 'Use the link below to sign into your delic account',
+          instructions: 'Use the link below to sign into your delic admin account',
           button: {
             color: '#1da1f2', // Optional action button color
             text: 'Login',
