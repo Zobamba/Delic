@@ -58,7 +58,7 @@ export function sendEmail({ recipientEmail }) {
         const MailGenerator = new Mailgen({
           theme: 'default',
           product: {
-            name: 'Delic password reset',
+            name: 'Delic Team',
             link: 'https://mailgen.js/',
           },
         });
@@ -116,7 +116,7 @@ export function sendSignUpEmail({ firstName, recipientEmail }) {
     const MailGenerator = new Mailgen({
       theme: 'default',
       product: {
-        name: 'Welcome to Delic',
+        name: 'Delic Team',
         link: 'https://mailgen.js/',
       },
     });
@@ -175,7 +175,7 @@ export function sendLoginEmail({ recipientEmail }) {
         const MailGenerator = new Mailgen({
           theme: 'default',
           product: {
-            name: 'New device Login',
+            name: 'Delic Team',
             link: 'https://mailgen.js/',
           },
         });
