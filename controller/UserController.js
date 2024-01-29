@@ -322,10 +322,6 @@ class UserController {
       if (updatedUser) {
         return next();
       }
-
-      res.status(404).send({
-        message: 'User not found',
-      });
     });
   }
 
