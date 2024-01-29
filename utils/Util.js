@@ -66,9 +66,9 @@ export function sendEmail({ recipientEmail }) {
         const emailBody = MailGenerator.generate(email);
 
         const mailOptions = {
-          from: process.env.APP_EMAIL,
+          from: '"Delic" <custom@example.com>',
           to: recipientEmail,
-          subject: 'Delic Team',
+          subject: '[Delic] Reset your password',
           html: emailBody,
         };
 
@@ -124,9 +124,9 @@ export function sendSignUpEmail({ firstName, recipientEmail }) {
     const emailBody = MailGenerator.generate(email);
 
     const mailOptions = {
-      from: process.env.APP_EMAIL,
+      from: '"Delic" <custom@example.com>',
       to: recipientEmail,
-      subject: 'Delic Team',
+      subject: '[Delic] Sign up successful',
       html: emailBody,
     };
 
@@ -175,7 +175,7 @@ export function sendLoginEmail({ recipientEmail }) {
         const MailGenerator = new Mailgen({
           theme: 'default',
           product: {
-            name: 'New device sign in',
+            name: 'New device Login',
             link: 'https://mailgen.js/',
           },
         });
@@ -183,9 +183,9 @@ export function sendLoginEmail({ recipientEmail }) {
         const emailBody = MailGenerator.generate(email);
 
         const mailOptions = {
-          from: process.env.APP_EMAIL,
+          from: '"Delic" <custom@example.com>',
           to: recipientEmail,
-          subject: 'Delic Team',
+          subject: '[Delic] New login to Delic',
           html: emailBody,
         };
 
