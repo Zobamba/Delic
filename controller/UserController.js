@@ -27,6 +27,8 @@ class UserController {
         message: 'User created successfully',
         token: signJsonWebToken(usr),
       });
+
+      return next();
     }).catch((error) => {
       if (error.name === 'SequelizeUniqueConstraintError') {
         return res.status(409).send({
@@ -38,7 +40,6 @@ class UserController {
         message: 'An error occurred while trying to sign up. Please try again',
       });
     });
-    return next();
   }
 
   signIn(req, res, next) {

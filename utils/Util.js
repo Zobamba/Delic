@@ -49,6 +49,7 @@ export function sendEmail({ recipientEmail }) {
                 color: '#1da1f2', // Optional action button color
                 text: 'Confirm your account',
                 link: `https://delic-admin.netlify.app/resetPassword?recoveryPasswordId=${responseData.recoveryPasswordId}`,
+                // link: `http://localhost:3000/resetPassword?recoveryPasswordId=${responseData.recoveryPasswordId}`,
               },
             },
             outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.',
