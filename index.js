@@ -16,7 +16,7 @@ const corsOptions = {
     'http://localhost:3002',
     'https://delic-admin-point-621r.vercel.app',
     'https://delic-admin.netlify.app',
-    'https://delic.netlify.app/',
+    'https://delic.netlify.app',
   ],
   credentials: true,
 };
