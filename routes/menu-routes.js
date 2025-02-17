@@ -8,8 +8,8 @@ import { validParamId, validateQueryString } from '../middlewares/validate';
 export default function menuRoutes(app) {
   app.post('/menus', verifyAuthToken, validateToken, checkIfAdmin, checkIfDisabled, menuFormConstraints, validateFormData, MenuController.verifyMealsInMenu, MenuController.postMenu, MenuController.mapMenuToMeals);
   app.put('/menus/:id', verifyAuthToken, validateToken, checkIfAdmin, checkIfDisabled, validParamId, validateFormData, menuUpdateFormConstraints, validateFormData, MenuController.verifyMealsInMenu, MenuController.putMenu, MenuController.updateMealsInMenu);
-  app.get('/menus/:id', verifyAuthToken, validateToken, checkIfAdmin, checkIfDisabled, validParamId, validateFormData, MenuController.getMenuByIdParam);
-  app.get('/menus', verifyAuthToken, validateToken, checkIfAdmin, checkIfDisabled, validateQueryString, validateFormData, MenuController.getMenus);
+  app.get('/menus/:id', validParamId, MenuController.getMenuByIdParam);
+  app.get('/menus', validateQueryString, MenuController.getMenus);
   app.delete('/menus/:id', verifyAuthToken, validateToken, checkIfAdmin, checkIfDisabled, validParamId, validateFormData, MenuController.deleteMenu);
   app.get('/menusMeals', MenuController.getActiveMenusMeals);
 }
